@@ -36,6 +36,9 @@ Naujas rodiklis: pridėkite jį į `RODIKLIAI` (`generuoti.py`) su sritimi, kryp
 | 1 | Vidutinė senatvės pensija | VDA S3R574 | 1994– |
 | 1 | Socialinės pašalpos gavėjai 1000 gyventojų | VDA S3R469, S3R166 | 2008– |
 | 1 | Naudingas būsto plotas vienam gyventojui | VDA S3R337 | 1995– |
+| 2 | Ikimokyklinio ugdymo aprėptis: vaikai iki 3 m. | VDA S3R723 | 2013– |
+| 2 | Ikimokyklinio ugdymo aprėptis: 3–6 m. vaikai | VDA S3R723 | 2013– |
+| 2 | Mirtingumas 1000 gyventojų | VDA S3R694 | 1994– |
 | 2 | VBE išlaikymas ir 86–100 balų (matematika, lietuvių k.) | NŠA | 2013–2024 |
 | 2 | PUPP nepasiekusiųjų dalis ir vidurkis (matematika, lietuvių k.) | NŠA | 2013–2026 |
 

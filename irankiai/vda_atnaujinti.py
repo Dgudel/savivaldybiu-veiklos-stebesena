@@ -24,10 +24,21 @@ LENTELES = {
                {"gyvenamoji_vietove": "Miestas ir kaimas"}),
     "gyventojai": ("s3r166_m3010218_lt", "s3r166",           # vidutinis metinis gyventojų skaičius
                    {"gyvenamoji_vietove": "Miestas ir kaimas"}),
+    # ---- 2 sritis: viešosios paslaugos ----
+    "ikimok_iki3": ("s3r723_m3110211_2_lt", "s3r723",       # vaikų, ugdomų pagal ikimokyklinio ugdymo programas, dalis (aprėptis), %
+                    {"amziaus_grupes": "iki 3 metų", "lytis": "Vyrai ir moterys"}),
+    "ikimok_3": ("s3r723_m3110211_2_lt", "s3r723",
+                 {"amziaus_grupes": "3 ir vyresni", "lytis": "Vyrai ir moterys"}),
+    "mirtingumas": ("s3r694_m3010601_2_lt", "s3r694", {}),  # mirusieji 1000 gyventojų
 }
 
 
+_KESAS: dict = {}
+
+
 def atsisiusk(lentele: str) -> pd.DataFrame:
+    if lentele in _KESAS:                                    # ta pati lentelė su skirtingais filtrais siunčiama vieną kartą
+        return _KESAS[lentele]
     url = f"{API}/{lentele}/query"
     q = lambda **k: requests.post(url, json=k, timeout=180).json()
     n = q(limit=1, offset=0)["total"]
@@ -39,6 +50,7 @@ def atsisiusk(lentele: str) -> pd.DataFrame:
     d = pd.DataFrame(eil).drop_duplicates("row_id")
     if len(d) != n:
         raise RuntimeError(f"{lentele}: gauta {len(d)} iš {n}")
+    _KESAS[lentele] = d
     return d
 
 

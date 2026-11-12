@@ -27,8 +27,11 @@ SRITYS = [
      "siūlomi": [["Asmenys socialinio būsto nuomos sąrašuose 1000 gyv.", "VDA (atnaujinti duomenys – iki 2014 m.)"],
                  ["Renovuotų daugiabučių dalis", "BETA / APVA"]]},
     {"nr": 2, "pav": "Viešosios paslaugos", "klaus": "Ar gyventojai gauna kokybiškas švietimo, sveikatos ir socialines paslaugas?",
-     "siūlomi": [["Ikimokyklinio ugdymo aprėptis", "VDA / ŠVIS"], ["Tikėtina gyvenimo trukmė", "VDA"],
-                 ["Savižudybių lygis", "Higienos institutas"], ["Laukiančių socialinių paslaugų skaičius", "SPIS"]]},
+     "siūlomi": [["Vidutinė tikėtina gyvenimo trukmė", "VDA (S3R0433) – tik 2 m. laikotarpiai, be šalies reikšmės"],
+                 ["Gydytojai 10 tūkst. gyv.", "VDA (S3R495) – tik iki 2015 m.; naujesni – Higienos institutas"],
+                 ["Savižudybių lygis 100 tūkst. gyv.", "Higienos institutas"],
+                 ["Socialinės globos įstaigų gyventojai", "VDA (S3R163, S3R164) – reikia patikslinti apibrėžtį"],
+                 ["Laukiantys socialinių paslaugų", "SPIS / savivaldybės"]]},
     {"nr": 3, "pav": "Ekonomika ir užimtumas", "klaus": "Ar savivaldybė kuria darbo vietas ir pritraukia investicijų?",
      "siūlomi": [["Registruotų bedarbių dalis", "Užimtumo tarnyba, mėnesinis"], ["Materialinės investicijos vienam gyventojui", "VDA, metinis"],
                  ["TUI vienam gyventojui", "VDA, metinis"], ["Veikiančių ūkio subjektų skaičius 1000 gyv.", "VDA"], ["Turistų nakvynės", "VDA, mėnesinis"]]},
@@ -60,7 +63,13 @@ RODIKLIAI = {
     "plotas": {"sritis": 1, "grupe": "Socialinė parama ir būstas", "pav": "Naudingas būsto plotas vienam gyventojui",
                "trumpai": "naudingas plotas, tenkantis vienam gyventojui, m²", "vnt": "m²", "pok_vnt": " m²",
                "slenkstis": 3, "slenkstis_pok": 0.5, "kryptis": 1, "dec": 1, "saltinis": "VDA (S3R337)"},
-    # ---- 2 sritis: Viešosios paslaugos (NŠA) ----
+    # ---- 2 sritis: Viešosios paslaugos ----
+    "ikimok_iki3": {"sritis": 2, "grupe": "Ikimokyklinis ugdymas", "pav": "Ikimokyklinio ugdymo aprėptis: vaikai iki 3 m.",
+                    "trumpai": "iki 3 m. vaikų, ugdomų ikimokyklinio ugdymo įstaigose, dalis, %", "vnt": "%", "pok_vnt": " p. p.",
+                    "slenkstis": 5, "slenkstis_pok": 1, "kryptis": 1, "dec": 1, "saltinis": "VDA (S3R723)"},
+    "ikimok_3": {"sritis": 2, "grupe": "Ikimokyklinis ugdymas", "pav": "Ikimokyklinio ugdymo aprėptis: 3–6 m. vaikai",
+                 "trumpai": "3 m. ir vyresnių (iki mokyklos) vaikų, ugdomų ikimokyklinio ir priešmokyklinio ugdymo įstaigose, dalis, %",
+                 "vnt": "%", "pok_vnt": " p. p.", "slenkstis": 5, "slenkstis_pok": 1, "kryptis": 1, "dec": 1, "saltinis": "VDA (S3R723)"},
     "mat_islaike": {"sritis": 2, **NSA_VBE, "pav": "Matematikos VBE išlaikymas", "trumpai": "išlaikė matematikos VBE, %", "vnt": "%", "slenkstis": 3, "kryptis": 1},
     "lt_islaike": {"sritis": 2, **NSA_VBE, "pav": "Lietuvių kalbos ir literatūros VBE išlaikymas", "trumpai": "išlaikė lietuvių k. VBE, %", "vnt": "%", "slenkstis": 3, "kryptis": 1},
     "mat_aukst": {"sritis": 2, **NSA_VBE, "pav": "Matematikos VBE: 86–100 balų", "trumpai": "gavo 86–100 balų (matematika), %", "vnt": "%", "slenkstis": 2, "kryptis": 1},
@@ -69,6 +78,9 @@ RODIKLIAI = {
     "pupp_lt_nepasieke": {"sritis": 2, **NSA_PUPP, "pav": "Lietuvių kalbos PUPP: nepasiekė patenkinamo lygio", "trumpai": "gavo 1–3 balus (lietuvių k.), % – mažiau yra geriau", "vnt": "%", "slenkstis": 2, "kryptis": -1},
     "pupp_mat_vid": {"sritis": 2, **NSA_PUPP, "pok_vnt": " balo", "pav": "Matematikos PUPP vidurkis", "trumpai": "vidutinis balas (1–10), matematika", "vnt": "", "slenkstis": 0.3, "kryptis": 1, "dec": 2, "max": 10},
     "pupp_lt_vid": {"sritis": 2, **NSA_PUPP, "pok_vnt": " balo", "pav": "Lietuvių kalbos PUPP vidurkis", "trumpai": "vidutinis balas (1–10), lietuvių kalba", "vnt": "", "slenkstis": 0.3, "kryptis": 1, "dec": 2, "max": 10},
+    "mirtingumas": {"sritis": 2, "grupe": "Sveikata", "pav": "Mirtingumas 1000 gyventojų",
+                    "trumpai": "mirusiųjų skaičius 1000 gyventojų – mažiau yra geriau; labai priklauso nuo gyventojų amžiaus struktūros",
+                    "vnt": "‰", "pok_vnt": " ‰", "slenkstis": 2, "slenkstis_pok": 0.5, "kryptis": -1, "dec": 1, "saltinis": "VDA (S3R694)"},
 }
 
 
@@ -129,7 +141,7 @@ def main():
         if nezinomi := set(df.k) - zinomi:
             raise SystemExit(f"{pav}: nepavyko susieti su žemėlapiu: {sorted(nezinomi)}")
 
-    # ---- VDA (1 sritis) ----
+    # ---- VDA (1 ir 2 sritys) ----
     def vda(raktas):
         d = pd.read_csv(SAKNIS / "duomenys" / f"vda_{raktas}.csv").dropna(subset=["reiksme"])
         d["k"] = d.administracine_teritorija.map(raktas_vda)
@@ -159,7 +171,9 @@ def main():
             pasalpa[0][e.k][int(e.laikotarpis)][1] = int(round(e.reiksme))
     RODIKLIAI["neto_du"]["laik"] = {"K1": "I ketv.", "K2": "II ketv.", "K3": "III ketv.", "K4": "IV ketv."}[ketv]
     vda_rod = {"neto_du": vda_serija(du), "pensija": vda_serija(vda("pensija")),
-               "pasalpa": pasalpa, "plotas": vda_serija(vda("plotas"))}
+               "pasalpa": pasalpa, "plotas": vda_serija(vda("plotas")),
+               "ikimok_iki3": vda_serija(vda("ikimok_iki3")), "ikimok_3": vda_serija(vda("ikimok_3")),
+               "mirtingumas": vda_serija(vda("mirtingumas"))}
 
     mat, lt = vbe[vbe.dalykas == "Matematika"], vbe[vbe.dalykas == "Lietuvių kalba ir literatūra"]
     pm, pl = pupp[pupp.dalykas == "Matematika"], pupp[pupp.dalykas == "Lietuvių kalba"]
