@@ -24,8 +24,8 @@ NUO_METU = 2013
 # ---------------- Sritys ir rodikliai (bendra abiem puslapiams) ----------------
 SRITYS = [
     {"nr": 1, "pav": "Gyvenimo lygis ir socialinė apsauga", "klaus": "Ar gyventojų gerovė savivaldybėje gerėja?",
-     "siūlomi": [["Vidutinis neto darbo užmokestis", "VDA / Sodra, ketvirtinis"], ["Socialinės pašalpos gavėjų dalis", "VDA (SPIS), metinis"],
-                 ["Laukiančių socialinio būsto šeimų skaičius", "VDA, metinis"], ["Vaikų, gyvenančių nepasiturinčiose šeimose, dalis", "SPIS"]]},
+     "siūlomi": [["Asmenys socialinio būsto nuomos sąrašuose 1000 gyv.", "VDA (atnaujinti duomenys – iki 2014 m.)"],
+                 ["Renovuotų daugiabučių dalis", "BETA / APVA"]]},
     {"nr": 2, "pav": "Viešosios paslaugos", "klaus": "Ar gyventojai gauna kokybiškas švietimo, sveikatos ir socialines paslaugas?",
      "siūlomi": [["Ikimokyklinio ugdymo aprėptis", "VDA / ŠVIS"], ["Tikėtina gyvenimo trukmė", "VDA"],
                  ["Savižudybių lygis", "Higienos institutas"], ["Laukiančių socialinių paslaugų skaičius", "SPIS"]]},
@@ -43,15 +43,32 @@ SRITYS = [
                  ["Senatvės priklausomybės koeficientas", "VDA"], ["Natūrali kaita ‰", "VDA"]]},
 ]
 VBE, PUPP = "VBE (12 klasė)", "PUPP (10 klasė)"
+NSA_VBE = {"grupe": VBE, "saltinis": "NŠA (VBE)", "pok_vnt": " p. p.", "n_pav": "Laikė"}
+NSA_PUPP = {"grupe": PUPP, "saltinis": "NŠA (PUPP)", "pok_vnt": " p. p.", "n_pav": "Laikė"}
 RODIKLIAI = {
-    "mat_islaike": {"sritis": 2, "grupe": VBE, "pav": "Matematikos VBE išlaikymas", "trumpai": "išlaikė matematikos VBE, %", "vnt": "%", "slenkstis": 3, "kryptis": 1},
-    "lt_islaike": {"sritis": 2, "grupe": VBE, "pav": "Lietuvių kalbos ir literatūros VBE išlaikymas", "trumpai": "išlaikė lietuvių k. VBE, %", "vnt": "%", "slenkstis": 3, "kryptis": 1},
-    "mat_aukst": {"sritis": 2, "grupe": VBE, "pav": "Matematikos VBE: 86–100 balų", "trumpai": "gavo 86–100 balų (matematika), %", "vnt": "%", "slenkstis": 2, "kryptis": 1},
-    "lt_aukst": {"sritis": 2, "grupe": VBE, "pav": "Lietuvių kalbos VBE: 86–100 balų", "trumpai": "gavo 86–100 balų (lietuvių k.), %", "vnt": "%", "slenkstis": 2, "kryptis": 1},
-    "pupp_mat_nepasieke": {"sritis": 2, "grupe": PUPP, "pav": "Matematikos PUPP: nepasiekė patenkinamo lygio", "trumpai": "gavo 1–3 balus (matematika), % – mažiau yra geriau", "vnt": "%", "slenkstis": 3, "kryptis": -1},
-    "pupp_lt_nepasieke": {"sritis": 2, "grupe": PUPP, "pav": "Lietuvių kalbos PUPP: nepasiekė patenkinamo lygio", "trumpai": "gavo 1–3 balus (lietuvių k.), % – mažiau yra geriau", "vnt": "%", "slenkstis": 2, "kryptis": -1},
-    "pupp_mat_vid": {"sritis": 2, "grupe": PUPP, "pav": "Matematikos PUPP vidurkis", "trumpai": "vidutinis balas (1–10), matematika", "vnt": "", "slenkstis": 0.3, "kryptis": 1, "dec": 2, "max": 10},
-    "pupp_lt_vid": {"sritis": 2, "grupe": PUPP, "pav": "Lietuvių kalbos PUPP vidurkis", "trumpai": "vidutinis balas (1–10), lietuvių kalba", "vnt": "", "slenkstis": 0.3, "kryptis": 1, "dec": 2, "max": 10},
+    # ---- 1 sritis: Gyvenimo lygis ir socialinė apsauga (VDA, duomenų portalas) ----
+    "neto_du": {"sritis": 1, "grupe": "Pajamos", "pav": "Vidutinis neto darbo užmokestis", "laik": "II ketv.",
+                "trumpai": "vidutinis mėnesinis neto DU, Eur (be individualiųjų įmonių)", "vnt": "Eur", "dec": 0,
+                "santykinis": True, "slenkstis": 10, "slenkstis_pok": 2, "kryptis": 1, "saltinis": "VDA (S3R0050)"},
+    "pensija": {"sritis": 1, "grupe": "Pajamos", "pav": "Vidutinė senatvės pensija",
+                "trumpai": "vidutinė Sodros senatvės pensija, Eur", "vnt": "Eur", "dec": 0,
+                "santykinis": True, "slenkstis": 5, "slenkstis_pok": 1, "kryptis": 1, "saltinis": "VDA (S3R574)"},
+    "pasalpa": {"sritis": 1, "grupe": "Socialinė parama ir būstas", "pav": "Socialinės pašalpos gavėjai 1000 gyventojų",
+                "trumpai": "socialinės pašalpos gavėjų (vidutiniškai per mėn.) 1000 gyventojų – mažiau yra geriau", "vnt": "",
+                "pok_vnt": "", "slenkstis": 3, "slenkstis_pok": 2, "kryptis": -1, "dec": 1, "saltinis": "VDA (S3R469, S3R166)",
+                "n_pav": "Gavėjų"},
+    "plotas": {"sritis": 1, "grupe": "Socialinė parama ir būstas", "pav": "Naudingas būsto plotas vienam gyventojui",
+               "trumpai": "naudingas plotas, tenkantis vienam gyventojui, m²", "vnt": "m²", "pok_vnt": " m²",
+               "slenkstis": 3, "slenkstis_pok": 0.5, "kryptis": 1, "dec": 1, "saltinis": "VDA (S3R337)"},
+    # ---- 2 sritis: Viešosios paslaugos (NŠA) ----
+    "mat_islaike": {"sritis": 2, **NSA_VBE, "pav": "Matematikos VBE išlaikymas", "trumpai": "išlaikė matematikos VBE, %", "vnt": "%", "slenkstis": 3, "kryptis": 1},
+    "lt_islaike": {"sritis": 2, **NSA_VBE, "pav": "Lietuvių kalbos ir literatūros VBE išlaikymas", "trumpai": "išlaikė lietuvių k. VBE, %", "vnt": "%", "slenkstis": 3, "kryptis": 1},
+    "mat_aukst": {"sritis": 2, **NSA_VBE, "pav": "Matematikos VBE: 86–100 balų", "trumpai": "gavo 86–100 balų (matematika), %", "vnt": "%", "slenkstis": 2, "kryptis": 1},
+    "lt_aukst": {"sritis": 2, **NSA_VBE, "pav": "Lietuvių kalbos VBE: 86–100 balų", "trumpai": "gavo 86–100 balų (lietuvių k.), %", "vnt": "%", "slenkstis": 2, "kryptis": 1},
+    "pupp_mat_nepasieke": {"sritis": 2, **NSA_PUPP, "pav": "Matematikos PUPP: nepasiekė patenkinamo lygio", "trumpai": "gavo 1–3 balus (matematika), % – mažiau yra geriau", "vnt": "%", "slenkstis": 3, "kryptis": -1},
+    "pupp_lt_nepasieke": {"sritis": 2, **NSA_PUPP, "pav": "Lietuvių kalbos PUPP: nepasiekė patenkinamo lygio", "trumpai": "gavo 1–3 balus (lietuvių k.), % – mažiau yra geriau", "vnt": "%", "slenkstis": 2, "kryptis": -1},
+    "pupp_mat_vid": {"sritis": 2, **NSA_PUPP, "pok_vnt": " balo", "pav": "Matematikos PUPP vidurkis", "trumpai": "vidutinis balas (1–10), matematika", "vnt": "", "slenkstis": 0.3, "kryptis": 1, "dec": 2, "max": 10},
+    "pupp_lt_vid": {"sritis": 2, **NSA_PUPP, "pok_vnt": " balo", "pav": "Lietuvių kalbos PUPP vidurkis", "trumpai": "vidutinis balas (1–10), lietuvių kalba", "vnt": "", "slenkstis": 0.3, "kryptis": 1, "dec": 2, "max": 10},
 }
 
 
@@ -66,6 +83,11 @@ def raktas(pav: str) -> str:
     else:
         tipas = "sav"
     return f"{kamienas}|{tipas}"
+
+
+def raktas_vda(pav: str) -> str:
+    """VDA pavadinimai: „Akmenės r. sav.“, „Marijampolės sav.“; apskritys, regionai ir šalis – grąžinamas jų pavadinimas."""
+    return raktas(pav) if " sav." in pav else pav
 
 
 def proc(df, skait, vard="laike"):
@@ -107,9 +129,42 @@ def main():
         if nezinomi := set(df.k) - zinomi:
             raise SystemExit(f"{pav}: nepavyko susieti su žemėlapiu: {sorted(nezinomi)}")
 
+    # ---- VDA (1 sritis) ----
+    def vda(raktas):
+        d = pd.read_csv(SAKNIS / "duomenys" / f"vda_{raktas}.csv").dropna(subset=["reiksme"])
+        d["k"] = d.administracine_teritorija.map(raktas_vda)
+        return d
+
+    def vda_serija(d, rk_metai=None):
+        """{savivaldybė: {metai: [reikšmė, None]}} ir šalies {metai: reikšmė} (eilutė „Lietuvos Respublika“)."""
+        sav, sal = {}, {}
+        for _, e in d.iterrows():
+            m = int(str(e.laikotarpis)[:4])
+            if e.k in zinomi:
+                sav.setdefault(e.k, {})[m] = [round(float(e.reiksme), 2), None]
+            elif e.administracine_teritorija == "Lietuvos Respublika":
+                sal[m] = round(float(e.reiksme), 2)
+        return sav, sal
+
+    du = vda("neto_du")
+    ketv = du.laikotarpis.max()[-2:]                 # naujausias ketvirtis, pvz. „K2“ – kiekvienais metais imamas tas pats
+    du = du[du.laikotarpis.str.endswith(ketv)]
+    gyv = vda("gyventojai").rename(columns={"reiksme": "gyv"})
+    pas = vda("pasalpa").merge(gyv[["laikotarpis", "administracine_teritorija", "gyv"]], on=["laikotarpis", "administracine_teritorija"])
+    pas_n = pas.copy()
+    pas["reiksme"] = pas.reiksme / pas.gyv * 1000
+    pasalpa = vda_serija(pas)
+    for _, e in pas_n.iterrows():                      # gavėjų skaičius – „n“ (mažoms savivaldybėms)
+        if e.k in pasalpa[0] and int(e.laikotarpis) in pasalpa[0][e.k]:
+            pasalpa[0][e.k][int(e.laikotarpis)][1] = int(round(e.reiksme))
+    RODIKLIAI["neto_du"]["laik"] = {"K1": "I ketv.", "K2": "II ketv.", "K3": "III ketv.", "K4": "IV ketv."}[ketv]
+    vda_rod = {"neto_du": vda_serija(du), "pensija": vda_serija(vda("pensija")),
+               "pasalpa": pasalpa, "plotas": vda_serija(vda("plotas"))}
+
     mat, lt = vbe[vbe.dalykas == "Matematika"], vbe[vbe.dalykas == "Lietuvių kalba ir literatūra"]
     pm, pl = pupp[pupp.dalykas == "Matematika"], pupp[pupp.dalykas == "Lietuvių kalba"]
     rodikliai = {
+        **vda_rod,
         "mat_islaike": proc(mat, "islaike"),
         "lt_islaike": proc(lt, "islaike"),
         "mat_aukst": proc(mat, "b86_100"),
@@ -133,7 +188,7 @@ def main():
     eil = "".join(
         f"<tr><td>{r['sritis']}. {e(SRITYS[r['sritis'] - 1]['pav'])}</td><td>{e(r['pav'])}</td>"
         f"<td>{min(salis[k])}–{max(salis[k])}</td><td>{'didesnė' if r['kryptis'] > 0 else 'mažesnė'} reikšmė</td>"
-        f"<td>±{str(r['slenkstis']).replace('.', ',')} {'p. p.' if r['vnt'] else 'balo'}</td><td>NŠA ({e(r['grupe'].split()[0])})</td></tr>"
+        f"<td>{slenksciai(r)}</td><td>{e(r['saltinis'])}</td></tr>"
         for k, r in RODIKLIAI.items())
     sr = "".join(
         f"<tr><td>{s['nr']}. {e(s['pav'])}</td><td>{e(s['klaus'])}</td><td>"
@@ -146,6 +201,17 @@ def main():
     for k, s_ in salis.items():
         print(f"  {k:20} {min(s_)}–{max(s_)}  savivaldybių (naujausi metai): {sum(max(s_) in v for v in duom[k].values())}")
     print("✅ sugeneruota: index.html, metodika.html")
+
+
+def slenksciai(r) -> str:
+    sk = lambda v: str(v).replace(".", ",")
+    if r.get("santykinis"):
+        return (f"±{sk(r['slenkstis'])} % nuo šalies vidurkio; per metus – ±{sk(r['slenkstis_pok'])} p. p., "
+                f"lyginant augimą su šalies augimu")
+    t = f"±{sk(r['slenkstis'])}{r['pok_vnt'] or ' (1000 gyv.)'}"
+    if r.get("slenkstis_pok") is not None and r["slenkstis_pok"] != r["slenkstis"]:
+        t += f"; per metus – ±{sk(r['slenkstis_pok'])}{r['pok_vnt'] or ''}"
+    return t
 
 
 def puslapiai():

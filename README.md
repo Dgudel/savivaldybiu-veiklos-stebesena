@@ -22,10 +22,22 @@ open index.html
 - `duomenys/vbe_savivaldybes.csv` – NŠA VBE rezultatai pagal savivaldybes (`VBE_suvestine.xlsx`, lapas „Savivaldybes“)
 - `duomenys/pupp_savivaldybes.csv` – NŠA PUPP rezultatai pagal savivaldybes; sukuriamas
   `python3 irankiai/pupp_savivaldybes.py <kelias iki PUPP_suvestine.xlsx>`
+- `duomenys/vda_*.csv` – VDA savivaldybių rodikliai; atnaujinami `python3 irankiai/vda_atnaujinti.py` (Lietuvos duomenų portalo API)
 - `duomenys/savivaldybes.geojson` – supaprastintos savivaldybių ribos
 
 Naujas rodiklis: pridėkite jį į `RODIKLIAI` (`generuoti.py`) su sritimi, kryptimi ir slenksčiu ir apskaičiuokite
 `duom` / `salis` reikšmes funkcijoje `main()` – jis atsiras suvestinėje, srities puslapyje ir metodikos lentelėje.
+
+## Prijungti rodikliai
+
+| Sritis | Rodiklis | Šaltinis | Metai |
+|---|---|---|---|
+| 1 | Vidutinis neto darbo užmokestis (ketvirtinis) | VDA S3R0050 | 2007– |
+| 1 | Vidutinė senatvės pensija | VDA S3R574 | 1994– |
+| 1 | Socialinės pašalpos gavėjai 1000 gyventojų | VDA S3R469, S3R166 | 2008– |
+| 1 | Naudingas būsto plotas vienam gyventojui | VDA S3R337 | 1995– |
+| 2 | VBE išlaikymas ir 86–100 balų (matematika, lietuvių k.) | NŠA | 2013–2024 |
+| 2 | PUPP nepasiekusiųjų dalis ir vidurkis (matematika, lietuvių k.) | NŠA | 2013–2026 |
 
 ## Vertinimas
 

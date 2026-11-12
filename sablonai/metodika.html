@@ -23,7 +23,9 @@
       <span style="color:var(--geltona-t)"><b>geltona</b></span> – kitu atveju. Taip matoma, kurios savivaldybės lenkia kitas.</li>
     <li><b>Lyginant su ankstesniais metais</b>: ta pati taisyklė, tik lyginama su pačios savivaldybės reikšme ankstesniais metais, už kuriuos yra duomenų. Taip vertinama pažanga.</li>
     <li><b>Kryptis.</b> Daugumai rodiklių geriau didesnė reikšmė. Rodikliams, kurių mažesnė reikšmė yra geresnė (pvz., nepasiekusiųjų patenkinamo lygio dalis), taisyklė taikoma atvirkščiai, o reitinge geriausios savivaldybės rodomos viršuje.</li>
-    <li><b>Šalies vidurkis</b> apskaičiuojamas iš visų savivaldybių duomenų (pvz., visų laikiusiųjų suma), o ne kaip savivaldybių reikšmių vidurkis, todėl didelės savivaldybės jam turi daugiau įtakos.</li>
+    <li><b>Šalies vidurkis</b> apskaičiuojamas iš visų savivaldybių duomenų (pvz., visų laikiusiųjų suma), o ne kaip savivaldybių reikšmių vidurkis, todėl didelės savivaldybės jam turi daugiau įtakos. VDA rodikliams naudojama VDA skelbiama šalies reikšmė.</li>
+    <li><b>Piniginiai rodikliai</b> (darbo užmokestis, pensija) lyginami santykiškai: su šalies vidurkiu – kiek procentų savivaldybės reikšmė didesnė ar mažesnė; su ankstesniais metais – ar savivaldybėje augo greičiau nei šalyje (skirtumas procentiniais punktais). Taip kainų augimas nenudažo visų savivaldybių žaliai.</li>
+    <li><b>Ketvirtiniai duomenys.</b> Darbo užmokestis skelbiamas ketvirčiais; kiekvieniems metams imamas tas pats (naujausias paskelbtas) ketvirtis, todėl metai palyginami be sezoniškumo.</li>
     <li><b>Mažos imtys.</b> Savivaldybėse, kur egzaminą laikė mažiau nei 30 mokinių, rezultatai labai svyruoja. Tokios savivaldybės žemėlapyje pažymėtos punktyriniu kontūru, o reitinge – ženklu ◦.</li>
     <li><b>Egzaminų sunkumas.</b> Egzaminų užduotys kasmet skiriasi (pvz., 2020 ir 2022 m. matematikos rezultatai visoje šalyje smuko), todėl egzaminų rodikliams tinkamesnis palyginimas su šalies vidurkiu. Lyginant su ankstesniais metais, sunkiais metais beveik visos savivaldybės tampa raudonos.</li>
   </ol>
@@ -43,6 +45,10 @@
 
   <h2>Duomenų šaltiniai</h2>
   <ul>
+    <li><b>Valstybės duomenų agentūra (VDA)</b> – per Lietuvos duomenų portalo API (atsisiunčia <code>irankiai/vda_atnaujinti.py</code>):
+      vidutinis mėnesinis neto darbo užmokestis savivaldybėse (S3R0050, ketvirtinis, šalies ūkis be individualiųjų įmonių),
+      vidutinė Sodros senatvės pensija (S3R574), socialinės pašalpos gavėjai – vidutiniškai per mėnesį (S3R469), padalyti iš vidutinio metinio gyventojų skaičiaus (S3R166),
+      naudingas būsto plotas, tenkantis vienam gyventojui (S3R337).</li>
     <li><b>VBE rezultatai savivaldybėse 2013–2024 m.</b> – Nacionalinė švietimo agentūra (NŠA), PDF lentelės. VBE nuo 2025 m. vyksta nauja struktūra (A ir B lygiai), o NŠA skelbia tik mokyklų vidurkius, todėl savivaldybių išlaikymo duomenų nuo 2025 m. nėra.</li>
     <li><b>PUPP rezultatai savivaldybėse 2013–2026 m.</b> – NŠA, PDF lentelės. Įtraukti visi patikrinimo variantai (lietuvių, lenkų, rusų ir kt. mokomąja kalba); 2013–2017 m. lietuvių kalba – gimtoji ir valstybinė kartu. 2020 m. PUPP nevyko, todėl 2021 m. lyginami su 2019 m.</li>
     <li>Kelių savivaldybių eilučių kai kuriais metais PDF atpažinti nepavyko – tais metais jos rodomos pilkai („Nėra duomenų“).</li>
