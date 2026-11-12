@@ -41,6 +41,10 @@ LENTELES = {
                  {"salys_ir_geografines_vietoves": "IŠ VISO",
                   "apgyvendinimo_tipas": "Viešbučiai ir panašios laikinos buveinės; poilsiautojų ir kitas trumpalaikis "
                                          "apgyvendinimas; poilsinės transporto priemonės, priekabų aikštelės ir stovyklavietės"}),
+    # ---- 4 sritis: infrastruktūra, aplinka ir saugumas ----
+    "eismas": ("s5r034_m7030322_2_lt", "s5r034", {}),        # žuvusieji ir sužeistieji kelių eismo įvykiuose (abi eilutės sumuojamos)
+    "butai": ("s8r269_m4060403_1_lt", "s8r269",             # pastatyti (baigti statyti) butai
+              {"statiniu_pagal_tipa_klasifikatorius_cc_gyvenamieji_pastatai_vieno_ir_dvieju_butu_pastatai": "Gyvenamieji pastatai, iš viso"}),
 }
 
 

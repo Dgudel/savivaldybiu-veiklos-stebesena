@@ -37,8 +37,11 @@ SRITYS = [
                  ["Įsidarbinusiųjų dalis po Užimtumo tarnybos priemonių", "Užimtumo tarnyba"],
                  ["Bendrasis vidaus produktas vienam gyventojui", "VDA – skelbiamas tik apskritims"]]},
     {"nr": 4, "pav": "Infrastruktūra, aplinka ir saugumas", "klaus": "Ar gerėja savivaldybės infrastruktūra, aplinka ir viešoji tvarka?",
-     "siūlomi": [["Nusikalstamos veikos 10 tūkst. gyv.", "IRD (filtras „Savivaldybės“), mėnesinis"], ["Žuvusieji ir sužeistieji keliuose", "LAKD / IRD"],
-                 ["Komunalinių atliekų rūšiavimas", "AAA"], ["Gyventojai, prijungti prie centralizuotų nuotekų", "VDA"], ["Gaisrai 10 tūkst. gyv.", "PAGD"]]},
+     "siūlomi": [["Užregistruotos nusikalstamos veikos 10 tūkst. gyv.", "IRD (ird.lt, filtras „Savivaldybės“) – duomenų portale savivaldybių pjūviu nėra"],
+                 ["Komunalinių atliekų perdirbimas / rūšiavimas", "Aplinkos apsaugos agentūra (AAA)"],
+                 ["Gyventojai, kuriems teikiamos centralizuotos nuotekų tvarkymo paslaugos", "VERT / AAA"],
+                 ["Gaisrai ir jų aukos 10 tūkst. gyv.", "PAGD"],
+                 ["Renovuotų daugiabučių dalis", "BETA / APVA"]]},
     {"nr": 5, "pav": "Savivaldos valdymas ir finansai", "klaus": "Ar savivaldybė tvarkosi skaidriai ir finansiškai tvariai?",
      "siūlomi": [["Biudžeto pajamos vienam gyventojui", "Finansų ministerija"], ["Skolos ir pajamų santykis", "Finansų ministerija"],
                  ["Investicijų dalis išlaidose", "VSAKIS"], ["Gyventojų pasitikėjimas savivaldybe", "apklausa"], ["Viešųjų pirkimų konkurencingumas", "VPT"]]},
@@ -99,6 +102,14 @@ RODIKLIAI = {
                  "trumpai": "nakvynių visose apgyvendinimo įstaigose skaičius, tenkantis vienam gyventojui", "vnt": "", "pok_vnt": "",
                  "dec": 2, "santykinis": True, "slenkstis": 25, "slenkstis_pok": 10, "kryptis": 1, "saltinis": "VDA (S8R864, S3R166)",
                  "n_pav": "Nakvynių"},
+    # ---- 4 sritis: Infrastruktūra, aplinka ir saugumas ----
+    "eismas": {"sritis": 4, "grupe": "Saugumas", "pav": "Žuvusieji ir sužeistieji eismo įvykiuose 10 tūkst. gyventojų",
+               "trumpai": "kelių eismo įvykiuose žuvusių ir sužeistų asmenų skaičius 10 tūkst. gyventojų – mažiau yra geriau",
+               "vnt": "", "pok_vnt": "", "slenkstis": 2, "slenkstis_pok": 1, "kryptis": -1, "dec": 1,
+               "saltinis": "VDA (S5R034, S3R166)", "n_pav": "Nukentėjusiųjų"},
+    "butai": {"sritis": 4, "grupe": "Infrastruktūra ir būstas", "pav": "Pastatyti butai 1000 gyventojų",
+              "trumpai": "per metus pastatytų (baigtų statyti) butų skaičius 1000 gyventojų", "vnt": "", "pok_vnt": "",
+              "slenkstis": 1, "slenkstis_pok": 0.5, "kryptis": 1, "dec": 2, "saltinis": "VDA (S8R269, S3R166)", "n_pav": "Butų"},
 }
 
 
@@ -159,7 +170,7 @@ def main():
         if nezinomi := set(df.k) - zinomi:
             raise SystemExit(f"{pav}: nepavyko susieti su žemėlapiu: {sorted(nezinomi)}")
 
-    # ---- VDA (1–3 sritys) ----
+    # ---- VDA (1–4 sritys) ----
     def vda(raktas):
         d = pd.read_csv(SAKNIS / "duomenys" / f"vda_{raktas}.csv").dropna(subset=["reiksme"])
         d["k"] = d.administracine_teritorija.map(raktas_vda)
@@ -186,6 +197,10 @@ def main():
     pas["reiksme"] = pas.reiksme / pas.gyv * 1000
     pasalpa = vda_serija(pas)
 
+    def suma(d):
+        """Kelios eilutės tai pačiai teritorijai ir metams (pvz., žuvusieji + sužeistieji) → viena."""
+        return d.groupby(["laikotarpis", "administracine_teritorija", "k"], as_index=False).reiksme.sum()
+
     def vienam_gyv(d, kiek):
         """Absoliutus skaičius → tenkantis 1 (arba 1000) gyventojų; „n“ – absoliutus skaičius."""
         d = d.merge(gyv[["laikotarpis", "administracine_teritorija", "gyv"]], on=["laikotarpis", "administracine_teritorija"])
@@ -206,7 +221,8 @@ def main():
                "mirtingumas": vda_serija(vda("mirtingumas")),
                "uzimtumas": vda_serija(vda("uzimtumas")), "investicijos": vda_serija(vda("investicijos")),
                "tui": vda_serija(vda("tui")),
-               "imones": vienam_gyv(vda("imones"), 1000), "nakvynes": vienam_gyv(vda("nakvynes"), 1)}
+               "imones": vienam_gyv(vda("imones"), 1000), "nakvynes": vienam_gyv(vda("nakvynes"), 1),
+               "eismas": vienam_gyv(suma(vda("eismas")), 10000), "butai": vienam_gyv(vda("butai"), 1000)}
 
     mat, lt = vbe[vbe.dalykas == "Matematika"], vbe[vbe.dalykas == "Lietuvių kalba ir literatūra"]
     pm, pl = pupp[pupp.dalykas == "Matematika"], pupp[pupp.dalykas == "Lietuvių kalba"]
