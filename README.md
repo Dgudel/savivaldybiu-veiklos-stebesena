@@ -39,6 +39,11 @@ Naujas rodiklis: pridėkite jį į `RODIKLIAI` (`generuoti.py`) su sritimi, kryp
 | 2 | Ikimokyklinio ugdymo aprėptis: vaikai iki 3 m. | VDA S3R723 | 2013– |
 | 2 | Ikimokyklinio ugdymo aprėptis: 3–6 m. vaikai | VDA S3R723 | 2013– |
 | 2 | Mirtingumas 1000 gyventojų | VDA S3R694 | 1994– |
+| 3 | Užimtumo lygis (20–64 m.) | VDA S3R537 | 2021– |
+| 3 | Veikiantys ūkio subjektai 1000 gyventojų | VDA S8R523, S3R166 | 2016– |
+| 3 | Materialinės investicijos vienam gyventojui | VDA S8R289 | 2004– |
+| 3 | Tiesioginės užsienio investicijos vienam gyventojui | VDA S7R104 | 2010– |
+| 3 | Turistų nakvynės vienam gyventojui | VDA S8R864, S3R166 | 2020– |
 | 2 | VBE išlaikymas ir 86–100 balų (matematika, lietuvių k.) | NŠA | 2013–2024 |
 | 2 | PUPP nepasiekusiųjų dalis ir vidurkis (matematika, lietuvių k.) | NŠA | 2013–2026 |
 

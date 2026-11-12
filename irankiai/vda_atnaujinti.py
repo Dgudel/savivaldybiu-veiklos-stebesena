@@ -30,6 +30,17 @@ LENTELES = {
     "ikimok_3": ("s3r723_m3110211_2_lt", "s3r723",
                  {"amziaus_grupes": "3 ir vyresni", "lytis": "Vyrai ir moterys"}),
     "mirtingumas": ("s3r694_m3010601_2_lt", "s3r694", {}),  # mirusieji 1000 gyventojų
+    # ---- 3 sritis: ekonomika ir užimtumas ----
+    "uzimtumas": ("s3r537_m3030916_lt", "s3r537",           # užimtumo lygis, %
+                  {"lytis": "Vyrai ir moterys", "amzius_15_64_20_64": "20–64"}),
+    "investicijos": ("s8r289_m4040301_2_lt", "s8r289", {}),  # materialinės investicijos, tenkančios vienam gyventojui, Eur
+    "tui": ("s7r104_m2030204_2_lt", "s7r104", {}),           # tiesioginės užsienio investicijos, tenkančios vienam gyventojui, Eur
+    "imones": ("s8r523_m4010113_1_lt", "s8r523",             # veikiantys ūkio subjektai metų pradžioje
+               {"pajamu_grupe": "Iš viso pagal pajamų grupes"}),
+    "nakvynes": ("s8r864_m4090304_3_lt", "s8r864",           # nakvynės visose apgyvendinimo įstaigose (~430 tūkst. eilučių)
+                 {"salys_ir_geografines_vietoves": "IŠ VISO",
+                  "apgyvendinimo_tipas": "Viešbučiai ir panašios laikinos buveinės; poilsiautojų ir kitas trumpalaikis "
+                                         "apgyvendinimas; poilsinės transporto priemonės, priekabų aikštelės ir stovyklavietės"}),
 }
 
 
@@ -37,17 +48,24 @@ _KESAS: dict = {}
 
 
 def atsisiusk(lentele: str) -> pd.DataFrame:
+    """Visa lentelė. API grąžina ne daugiau kaip 100 000 eilučių per užklausą, o eilučių tvarka tarp užklausų
+    nėra pastovi, todėl didelės lentelės puslapiai siunčiami pakartotinai, kol surenkamos visos eilutės (pagal row_id)."""
     if lentele in _KESAS:                                    # ta pati lentelė su skirtingais filtrais siunčiama vieną kartą
         return _KESAS[lentele]
     url = f"{API}/{lentele}/query"
-    q = lambda **k: requests.post(url, json=k, timeout=180).json()
+    q = lambda **k: requests.post(url, json=k, timeout=300).json()
     n = q(limit=1, offset=0)["total"]
-    eil = q(limit=n, offset=0)["data"]
-    if len(eil) < n:                                         # API riboja puslapio dydį – einame per puslapius
-        dydis, eil = len(eil) or 1000, []
+    dydis = min(n, 100_000)
+    eil: dict = {}
+    for bandymas in range(30):
         for p in range(1, -(-n // dydis) + 1):
-            eil += q(limit=dydis, offset=(p - 1) * dydis, page=p)["data"]
-    d = pd.DataFrame(eil).drop_duplicates("row_id")
+            for e in q(limit=dydis, offset=(p - 1) * dydis, page=p)["data"]:
+                eil[e["row_id"]] = e
+            if len(eil) == n:
+                break
+        if len(eil) == n:
+            break
+    d = pd.DataFrame(list(eil.values()))
     if len(d) != n:
         raise RuntimeError(f"{lentele}: gauta {len(d)} iš {n}")
     _KESAS[lentele] = d

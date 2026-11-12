@@ -33,8 +33,9 @@ SRITYS = [
                  ["Socialinės globos įstaigų gyventojai", "VDA (S3R163, S3R164) – reikia patikslinti apibrėžtį"],
                  ["Laukiantys socialinių paslaugų", "SPIS / savivaldybės"]]},
     {"nr": 3, "pav": "Ekonomika ir užimtumas", "klaus": "Ar savivaldybė kuria darbo vietas ir pritraukia investicijų?",
-     "siūlomi": [["Registruotų bedarbių dalis", "Užimtumo tarnyba, mėnesinis"], ["Materialinės investicijos vienam gyventojui", "VDA, metinis"],
-                 ["TUI vienam gyventojui", "VDA, metinis"], ["Veikiančių ūkio subjektų skaičius 1000 gyv.", "VDA"], ["Turistų nakvynės", "VDA, mėnesinis"]]},
+     "siūlomi": [["Registruotų bedarbių dalis darbingo amžiaus gyventojų", "Užimtumo tarnyba (uzt.lt), mėnesinis – duomenų portale savivaldybių pjūviu nėra"],
+                 ["Įsidarbinusiųjų dalis po Užimtumo tarnybos priemonių", "Užimtumo tarnyba"],
+                 ["Bendrasis vidaus produktas vienam gyventojui", "VDA – skelbiamas tik apskritims"]]},
     {"nr": 4, "pav": "Infrastruktūra, aplinka ir saugumas", "klaus": "Ar gerėja savivaldybės infrastruktūra, aplinka ir viešoji tvarka?",
      "siūlomi": [["Nusikalstamos veikos 10 tūkst. gyv.", "IRD (filtras „Savivaldybės“), mėnesinis"], ["Žuvusieji ir sužeistieji keliuose", "LAKD / IRD"],
                  ["Komunalinių atliekų rūšiavimas", "AAA"], ["Gyventojai, prijungti prie centralizuotų nuotekų", "VDA"], ["Gaisrai 10 tūkst. gyv.", "PAGD"]]},
@@ -81,6 +82,23 @@ RODIKLIAI = {
     "mirtingumas": {"sritis": 2, "grupe": "Sveikata", "pav": "Mirtingumas 1000 gyventojų",
                     "trumpai": "mirusiųjų skaičius 1000 gyventojų – mažiau yra geriau; labai priklauso nuo gyventojų amžiaus struktūros",
                     "vnt": "‰", "pok_vnt": " ‰", "slenkstis": 2, "slenkstis_pok": 0.5, "kryptis": -1, "dec": 1, "saltinis": "VDA (S3R694)"},
+    # ---- 3 sritis: Ekonomika ir užimtumas ----
+    "uzimtumas": {"sritis": 3, "grupe": "Užimtumas", "pav": "Užimtumo lygis (20–64 m.)",
+                  "trumpai": "užimtų 20–64 m. gyventojų dalis, %", "vnt": "%", "pok_vnt": " p. p.",
+                  "slenkstis": 3, "slenkstis_pok": 1, "kryptis": 1, "dec": 1, "saltinis": "VDA (S3R537)"},
+    "imones": {"sritis": 3, "grupe": "Verslas ir investicijos", "pav": "Veikiantys ūkio subjektai 1000 gyventojų",
+               "trumpai": "veikiančių ūkio subjektų (metų pradžioje) skaičius 1000 gyventojų", "vnt": "", "pok_vnt": "",
+               "slenkstis": 5, "slenkstis_pok": 1, "kryptis": 1, "dec": 1, "saltinis": "VDA (S8R523, S3R166)", "n_pav": "Subjektų"},
+    "investicijos": {"sritis": 3, "grupe": "Verslas ir investicijos", "pav": "Materialinės investicijos vienam gyventojui",
+                     "trumpai": "materialinės investicijos, tenkančios vienam gyventojui, Eur", "vnt": "Eur", "dec": 0,
+                     "santykinis": True, "slenkstis": 25, "slenkstis_pok": 10, "kryptis": 1, "saltinis": "VDA (S8R289)"},
+    "tui": {"sritis": 3, "grupe": "Verslas ir investicijos", "pav": "Tiesioginės užsienio investicijos vienam gyventojui",
+            "trumpai": "TUI (sukauptos metų pabaigoje), tenkančios vienam gyventojui, Eur", "vnt": "Eur", "dec": 0,
+            "santykinis": True, "slenkstis": 25, "slenkstis_pok": 10, "kryptis": 1, "saltinis": "VDA (S7R104)"},
+    "nakvynes": {"sritis": 3, "grupe": "Turizmas", "pav": "Turistų nakvynės vienam gyventojui",
+                 "trumpai": "nakvynių visose apgyvendinimo įstaigose skaičius, tenkantis vienam gyventojui", "vnt": "", "pok_vnt": "",
+                 "dec": 2, "santykinis": True, "slenkstis": 25, "slenkstis_pok": 10, "kryptis": 1, "saltinis": "VDA (S8R864, S3R166)",
+                 "n_pav": "Nakvynių"},
 }
 
 
@@ -141,7 +159,7 @@ def main():
         if nezinomi := set(df.k) - zinomi:
             raise SystemExit(f"{pav}: nepavyko susieti su žemėlapiu: {sorted(nezinomi)}")
 
-    # ---- VDA (1 ir 2 sritys) ----
+    # ---- VDA (1–3 sritys) ----
     def vda(raktas):
         d = pd.read_csv(SAKNIS / "duomenys" / f"vda_{raktas}.csv").dropna(subset=["reiksme"])
         d["k"] = d.administracine_teritorija.map(raktas_vda)
@@ -156,7 +174,8 @@ def main():
                 sav.setdefault(e.k, {})[m] = [round(float(e.reiksme), 2), None]
             elif e.administracine_teritorija == "Lietuvos Respublika":
                 sal[m] = round(float(e.reiksme), 2)
-        return sav, sal
+        turimi = {m for x in sav.values() for m in x}          # tik metai, kuriems yra savivaldybių duomenų
+        return sav, {m: v for m, v in sal.items() if m in turimi}
 
     du = vda("neto_du")
     ketv = du.laikotarpis.max()[-2:]                 # naujausias ketvirtis, pvz. „K2“ – kiekvienais metais imamas tas pats
@@ -166,6 +185,17 @@ def main():
     pas_n = pas.copy()
     pas["reiksme"] = pas.reiksme / pas.gyv * 1000
     pasalpa = vda_serija(pas)
+
+    def vienam_gyv(d, kiek):
+        """Absoliutus skaičius → tenkantis 1 (arba 1000) gyventojų; „n“ – absoliutus skaičius."""
+        d = d.merge(gyv[["laikotarpis", "administracine_teritorija", "gyv"]], on=["laikotarpis", "administracine_teritorija"])
+        n = d.reiksme.copy()
+        d["reiksme"] = d.reiksme / d.gyv * kiek
+        sav, sal = vda_serija(d)
+        for (_, e), nn in zip(d.iterrows(), n):
+            if e.k in sav and int(e.laikotarpis) in sav[e.k]:
+                sav[e.k][int(e.laikotarpis)][1] = int(round(nn))
+        return sav, sal
     for _, e in pas_n.iterrows():                      # gavėjų skaičius – „n“ (mažoms savivaldybėms)
         if e.k in pasalpa[0] and int(e.laikotarpis) in pasalpa[0][e.k]:
             pasalpa[0][e.k][int(e.laikotarpis)][1] = int(round(e.reiksme))
@@ -173,7 +203,10 @@ def main():
     vda_rod = {"neto_du": vda_serija(du), "pensija": vda_serija(vda("pensija")),
                "pasalpa": pasalpa, "plotas": vda_serija(vda("plotas")),
                "ikimok_iki3": vda_serija(vda("ikimok_iki3")), "ikimok_3": vda_serija(vda("ikimok_3")),
-               "mirtingumas": vda_serija(vda("mirtingumas"))}
+               "mirtingumas": vda_serija(vda("mirtingumas")),
+               "uzimtumas": vda_serija(vda("uzimtumas")), "investicijos": vda_serija(vda("investicijos")),
+               "tui": vda_serija(vda("tui")),
+               "imones": vienam_gyv(vda("imones"), 1000), "nakvynes": vienam_gyv(vda("nakvynes"), 1)}
 
     mat, lt = vbe[vbe.dalykas == "Matematika"], vbe[vbe.dalykas == "Lietuvių kalba ir literatūra"]
     pm, pl = pupp[pupp.dalykas == "Matematika"], pupp[pupp.dalykas == "Lietuvių kalba"]
