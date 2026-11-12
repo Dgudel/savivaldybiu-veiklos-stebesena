@@ -45,6 +45,11 @@ LENTELES = {
     "eismas": ("s5r034_m7030322_2_lt", "s5r034", {}),        # žuvusieji ir sužeistieji kelių eismo įvykiuose (abi eilutės sumuojamos)
     "butai": ("s8r269_m4060403_1_lt", "s8r269",             # pastatyti (baigti statyti) butai
               {"statiniu_pagal_tipa_klasifikatorius_cc_gyvenamieji_pastatai_vieno_ir_dvieju_butu_pastatai": "Gyvenamieji pastatai, iš viso"}),
+    # ---- 5 sritis: savivaldos valdymas ir finansai (savivaldybių biudžetų vykdymas, tūkst. Eur) ----
+    "biudz_pajamos": ("s7r249_m2040204_lt", "s7r249", {"pajamu_rodiklis": "Viso pajamų"}),
+    "biudz_dotacijos": ("s7r249_m2040204_lt", "s7r249", {"pajamu_rodiklis": "Dotacijos"}),
+    "biudz_islaidos": ("s7r248_m2040203_lt", "s7r248", {"valstybes_funkciju_klasifikatorius_cofog": "Iš viso"}),
+    "biudz_bendros": ("s7r248_m2040203_lt", "s7r248", {"valstybes_funkciju_klasifikatorius_cofog": "Bendros valstybės paslaugos"}),
 }
 
 

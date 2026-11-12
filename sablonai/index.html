@@ -256,7 +256,10 @@ function atnaujinti() {
 
   // Reitingas
   const eil = ids.map(id => ({id, ...iv[id]})).filter(x => x.v != null).sort((a, b) => (b.v - a.v) * R.kryptis);
-  const max = R.max ?? (R.kryptis < 0 ? Math.max(...eil.map(x => x.v)) * 1.05 : Math.max(100, ...eil.map(x => x.v))), skale = v => v / max * 100;
+  // Juostų skalė: nuo min(0, mažiausia reikšmė) iki R.max, 100 % (kai procentai dideli) arba didžiausios reikšmės
+  const reiksmes = eil.map(x => x.v), apac = Math.min(0, ...reiksmes), didz = Math.max(0, ...reiksmes);
+  const max = R.max ?? (R.vnt === "%" && apac === 0 && didz > 50 ? 100 : didz * 1.05 || 1);
+  const skale = v => (v - apac) / (max - apac) * 100;
   d3.select("#reit-pa").text(`${R.trumpai}. ${R.kryptis < 0 ? "Geriausios – viršuje. " : ""}Brūkšninė linija – šalies vidurkis. ${eil.length} savivaldybės.`);
   const cont = d3.select("#reitingas");
   const rows = cont.selectAll(".eil").data(eil, d => d.id).join(
@@ -272,7 +275,8 @@ function atnaujinti() {
   rows.order().classed("aktyvi", d => d.id === busena.pasirinkta);
   rows.select(".vt").text((d, i) => i + 1);
   rows.select(".pv").text(d => pav(d.id) + (R.n_pav === "Laikė" && d.n < MAZA_IMTIS ? " ◦" : "")).attr("title", d => pav(d.id));
-  rows.select(".juosta span").style("background", d => SPALVOS[d.k]).transition().duration(250).style("width", d => skale(d.v) + "%");
+  rows.select(".juosta span").style("background", d => SPALVOS[d.k]).transition().duration(250)
+    .style("left", d => skale(Math.min(0, d.v)) + "%").style("width", d => Math.abs(skale(d.v) - skale(0)) + "%");
   rows.select(".vidurkio-linija").style("left", skale(salis) + "%");
   rows.select(".reik").text(d => fmt(d.v));
 
@@ -307,7 +311,7 @@ function piestiDetales() {
   const x = d3.scaleLinear().domain(d3.extent(ml)).range([m.l, W - m.r]);
   const lo = d3.min([...sav, ...sal], d => d.v), hi = d3.max([...sav, ...sal], d => d.v), pad = (hi - lo) * 0.15 || 1;
   const virsus = R.max ?? (R.vnt === "%" ? 100 : Infinity);
-  const y = d3.scaleLinear().domain([Math.max(0, lo - pad), Math.min(virsus, hi + pad)]).nice().range([H - m.b, m.t]);
+  const y = d3.scaleLinear().domain([lo >= 0 ? Math.max(0, lo - pad) : lo - pad, Math.min(virsus, hi + pad)]).nice().range([H - m.b, m.t]);
   const svg = box.append("div").attr("id", "tendencija").append("svg").attr("viewBox", `0 0 ${W} ${H}`);
   svg.append("g").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(6).tickFormat(d3.format("d")).tickSizeOuter(0))
     .call(g => g.selectAll("text").attr("fill", "var(--blankus)")).call(g => g.selectAll("line,path").attr("stroke", "var(--linija)"));

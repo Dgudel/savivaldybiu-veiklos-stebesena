@@ -43,8 +43,11 @@ SRITYS = [
                  ["Gaisrai ir jų aukos 10 tūkst. gyv.", "PAGD"],
                  ["Renovuotų daugiabučių dalis", "BETA / APVA"]]},
     {"nr": 5, "pav": "Savivaldos valdymas ir finansai", "klaus": "Ar savivaldybė tvarkosi skaidriai ir finansiškai tvariai?",
-     "siūlomi": [["Biudžeto pajamos vienam gyventojui", "Finansų ministerija"], ["Skolos ir pajamų santykis", "Finansų ministerija"],
-                 ["Investicijų dalis išlaidose", "VSAKIS"], ["Gyventojų pasitikėjimas savivaldybe", "apklausa"], ["Viešųjų pirkimų konkurencingumas", "VPT"]]},
+     "siūlomi": [["Savivaldybės skolos ir pajamų santykis", "Finansų ministerija (finmin.lrv.lt, savivaldybių biudžetų ataskaitos)"],
+                 ["Investicijų (ilgalaikio turto įsigijimo) dalis išlaidose", "Finansų ministerija / VSAKIS"],
+                 ["Rinkėjų aktyvumas savivaldybių tarybų rinkimuose", "VRK (vrk.lt); duomenų portale – tik iki 2015 m. (S3R439)"],
+                 ["Gyventojų pasitikėjimas savivaldybe", "apklausa (pvz., Vidaus reikalų ministerijos tyrimas)"],
+                 ["Viešųjų pirkimų konkurencingumas (vieno tiekėjo pirkimų dalis)", "VPT (vpt.lrv.lt)"]]},
     {"nr": 6, "pav": "Demografija ir migracija", "klaus": "Ar savivaldybė išlaiko ir pritraukia gyventojų?",
      "siūlomi": [["Gyventojų skaičiaus kaita ‰", "VDA, metinis"], ["Vidaus migracijos saldo", "VDA"], ["Tarptautinės migracijos saldo", "VDA"],
                  ["Senatvės priklausomybės koeficientas", "VDA"], ["Natūrali kaita ‰", "VDA"]]},
@@ -110,6 +113,19 @@ RODIKLIAI = {
     "butai": {"sritis": 4, "grupe": "Infrastruktūra ir būstas", "pav": "Pastatyti butai 1000 gyventojų",
               "trumpai": "per metus pastatytų (baigtų statyti) butų skaičius 1000 gyventojų", "vnt": "", "pok_vnt": "",
               "slenkstis": 1, "slenkstis_pok": 0.5, "kryptis": 1, "dec": 2, "saltinis": "VDA (S8R269, S3R166)", "n_pav": "Butų"},
+    # ---- 5 sritis: Savivaldos valdymas ir finansai ----
+    "biudz_gyv": {"sritis": 5, "grupe": "Biudžetas", "pav": "Biudžeto pajamos vienam gyventojui",
+                  "trumpai": "savivaldybės biudžeto pajamos (su dotacijomis), tenkančios vienam gyventojui, Eur", "vnt": "Eur", "dec": 0,
+                  "santykinis": True, "slenkstis": 10, "slenkstis_pok": 3, "kryptis": 1, "saltinis": "VDA (S7R249, S3R166)"},
+    "nuosavos": {"sritis": 5, "grupe": "Biudžetas", "pav": "Nuosavų pajamų dalis biudžete",
+                 "trumpai": "biudžeto pajamų be dotacijų (mokesčiai, turto ir kitos pajamos) dalis visose pajamose, % – rodo finansinį savarankiškumą",
+                 "vnt": "%", "pok_vnt": " p. p.", "slenkstis": 5, "slenkstis_pok": 2, "kryptis": 1, "dec": 1, "saltinis": "VDA (S7R249)"},
+    "balansas": {"sritis": 5, "grupe": "Biudžetas", "pav": "Biudžeto perteklius (deficitas)",
+                 "trumpai": "(pajamos – išlaidos) / pajamos, %; neigiama reikšmė – išlaidos viršijo pajamas (dažnai – dėl skolintų lėšų investicijoms)",
+                 "vnt": "%", "pok_vnt": " p. p.", "slenkstis": 3, "slenkstis_pok": 2, "kryptis": 1, "dec": 1, "saltinis": "VDA (S7R249, S7R248)"},
+    "admin_dalis": {"sritis": 5, "grupe": "Išlaidos", "pav": "Bendrųjų valstybės paslaugų išlaidų dalis",
+                    "trumpai": "išlaidų bendrosioms valstybės paslaugoms (administracija, skolos aptarnavimas ir kt.) dalis visose išlaidose, % – mažiau yra geriau",
+                    "vnt": "%", "pok_vnt": " p. p.", "slenkstis": 2, "slenkstis_pok": 1, "kryptis": -1, "dec": 1, "saltinis": "VDA (S7R248)"},
 }
 
 
@@ -170,7 +186,7 @@ def main():
         if nezinomi := set(df.k) - zinomi:
             raise SystemExit(f"{pav}: nepavyko susieti su žemėlapiu: {sorted(nezinomi)}")
 
-    # ---- VDA (1–4 sritys) ----
+    # ---- VDA (1–5 sritys) ----
     def vda(raktas):
         d = pd.read_csv(SAKNIS / "duomenys" / f"vda_{raktas}.csv").dropna(subset=["reiksme"])
         d["k"] = d.administracine_teritorija.map(raktas_vda)
@@ -201,6 +217,12 @@ def main():
         """Kelios eilutės tai pačiai teritorijai ir metams (pvz., žuvusieji + sužeistieji) → viena."""
         return d.groupby(["laikotarpis", "administracine_teritorija", "k"], as_index=False).reiksme.sum()
 
+    def santykis(a, b, f):
+        """Dviejų VDA eilučių (ta pati teritorija ir metai) junginys, pvz., (pajamos – dotacijos) / pajamos."""
+        d = a.merge(b[["laikotarpis", "administracine_teritorija", "reiksme"]], on=["laikotarpis", "administracine_teritorija"])
+        d = d.assign(reiksme=f(d.reiksme_x, d.reiksme_y))
+        return vda_serija(d[d.reiksme_x > 0])
+
     def vienam_gyv(d, kiek):
         """Absoliutus skaičius → tenkantis 1 (arba 1000) gyventojų; „n“ – absoliutus skaičius."""
         d = d.merge(gyv[["laikotarpis", "administracine_teritorija", "gyv"]], on=["laikotarpis", "administracine_teritorija"])
@@ -222,7 +244,11 @@ def main():
                "uzimtumas": vda_serija(vda("uzimtumas")), "investicijos": vda_serija(vda("investicijos")),
                "tui": vda_serija(vda("tui")),
                "imones": vienam_gyv(vda("imones"), 1000), "nakvynes": vienam_gyv(vda("nakvynes"), 1),
-               "eismas": vienam_gyv(suma(vda("eismas")), 10000), "butai": vienam_gyv(vda("butai"), 1000)}
+               "eismas": vienam_gyv(suma(vda("eismas")), 10000), "butai": vienam_gyv(vda("butai"), 1000),
+               "biudz_gyv": vienam_gyv(vda("biudz_pajamos").assign(reiksme=lambda x: x.reiksme * 1000), 1),
+               "nuosavos": santykis(vda("biudz_pajamos"), vda("biudz_dotacijos"), lambda a, b: (a - b) / a * 100),
+               "balansas": santykis(vda("biudz_pajamos"), vda("biudz_islaidos"), lambda a, b: (a - b) / a * 100),
+               "admin_dalis": santykis(vda("biudz_islaidos"), vda("biudz_bendros"), lambda a, b: b / a * 100)}
 
     mat, lt = vbe[vbe.dalykas == "Matematika"], vbe[vbe.dalykas == "Lietuvių kalba ir literatūra"]
     pm, pl = pupp[pupp.dalykas == "Matematika"], pupp[pupp.dalykas == "Lietuvių kalba"]

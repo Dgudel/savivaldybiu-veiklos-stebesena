@@ -46,6 +46,10 @@ Naujas rodiklis: pridėkite jį į `RODIKLIAI` (`generuoti.py`) su sritimi, kryp
 | 3 | Turistų nakvynės vienam gyventojui | VDA S8R864, S3R166 | 2020– |
 | 4 | Žuvusieji ir sužeistieji eismo įvykiuose 10 tūkst. gyventojų | VDA S5R034, S3R166 | 2008– |
 | 4 | Pastatyti butai 1000 gyventojų | VDA S8R269, S3R166 | 2008– |
+| 5 | Biudžeto pajamos vienam gyventojui | VDA S7R249, S3R166 | 2008– |
+| 5 | Nuosavų pajamų dalis biudžete | VDA S7R249 | 2004– |
+| 5 | Biudžeto perteklius (deficitas), % pajamų | VDA S7R249, S7R248 | 2004– |
+| 5 | Bendrųjų valstybės paslaugų išlaidų dalis | VDA S7R248 | 2004– |
 | 2 | VBE išlaikymas ir 86–100 balų (matematika, lietuvių k.) | NŠA | 2013–2024 |
 | 2 | PUPP nepasiekusiųjų dalis ir vidurkis (matematika, lietuvių k.) | NŠA | 2013–2026 |
 
