@@ -49,8 +49,8 @@ SRITYS = [
                  ["Gyventojų pasitikėjimas savivaldybe", "apklausa (pvz., Vidaus reikalų ministerijos tyrimas)"],
                  ["Viešųjų pirkimų konkurencingumas (vieno tiekėjo pirkimų dalis)", "VPT (vpt.lrv.lt)"]]},
     {"nr": 6, "pav": "Demografija ir migracija", "klaus": "Ar savivaldybė išlaiko ir pritraukia gyventojų?",
-     "siūlomi": [["Gyventojų skaičiaus kaita ‰", "VDA, metinis"], ["Vidaus migracijos saldo", "VDA"], ["Tarptautinės migracijos saldo", "VDA"],
-                 ["Senatvės priklausomybės koeficientas", "VDA"], ["Natūrali kaita ‰", "VDA"]]},
+     "siūlomi": [["Gimstamumas 1000 gyv.", "VDA (S3R692)"], ["Emigrantai 1000 gyv.", "VDA (S3R107)"],
+                 ["Jaunimo (15–29 m.) dalis", "VDA (S3R167)"]]},
 ]
 VBE, PUPP = "VBE (12 klasė)", "PUPP (10 klasė)"
 NSA_VBE = {"grupe": VBE, "saltinis": "NŠA (VBE)", "pok_vnt": " p. p.", "n_pav": "Laikė"}
@@ -126,6 +126,22 @@ RODIKLIAI = {
     "admin_dalis": {"sritis": 5, "grupe": "Išlaidos", "pav": "Bendrųjų valstybės paslaugų išlaidų dalis",
                     "trumpai": "išlaidų bendrosioms valstybės paslaugoms (administracija, skolos aptarnavimas ir kt.) dalis visose išlaidose, % – mažiau yra geriau",
                     "vnt": "%", "pok_vnt": " p. p.", "slenkstis": 2, "slenkstis_pok": 1, "kryptis": -1, "dec": 1, "saltinis": "VDA (S7R248)"},
+    # ---- 6 sritis: Demografija ir migracija ----
+    "gyv_kaita": {"sritis": 6, "grupe": "Gyventojų skaičius", "pav": "Gyventojų skaičiaus pokytis",
+                  "trumpai": "vidutinio metinio gyventojų skaičiaus pokytis per metus, %", "vnt": "%", "pok_vnt": " p. p.",
+                  "slenkstis": 0.5, "slenkstis_pok": 0.5, "kryptis": 1, "dec": 2, "saltinis": "VDA (S3R166)"},
+    "naturali": {"sritis": 6, "grupe": "Gyventojų skaičius", "pav": "Natūrali gyventojų kaita",
+                 "trumpai": "gimusiųjų ir mirusiųjų skirtumas 1000 gyventojų, ‰", "vnt": "‰", "pok_vnt": " ‰",
+                 "slenkstis": 2, "slenkstis_pok": 0.5, "kryptis": 1, "dec": 1, "saltinis": "VDA (S3R695)"},
+    "senatves": {"sritis": 6, "grupe": "Gyventojų skaičius", "pav": "Senatvės priklausomybės koeficientas",
+                 "trumpai": "65 m. ir vyresnių gyventojų skaičius 100-ui 15–64 m. gyventojų (metų pradžioje) – mažiau yra geriau",
+                 "vnt": "", "pok_vnt": "", "slenkstis": 3, "slenkstis_pok": 1, "kryptis": -1, "dec": 1, "saltinis": "VDA (S3R167)"},
+    "migr_tarpt": {"sritis": 6, "grupe": "Migracija", "pav": "Tarptautinės migracijos saldo",
+                   "trumpai": "imigrantų ir emigrantų skirtumas 1000 gyventojų, ‰", "vnt": "‰", "pok_vnt": " ‰",
+                   "slenkstis": 3, "slenkstis_pok": 2, "kryptis": 1, "dec": 1, "saltinis": "VDA (S3R756)"},
+    "migr_vidaus": {"sritis": 6, "grupe": "Migracija", "pav": "Vidaus migracijos saldo",
+                    "trumpai": "atvykusių iš kitų savivaldybių ir išvykusių į jas skirtumas 1000 gyventojų, ‰ (šalies vidurkis – 0)",
+                    "vnt": "‰", "pok_vnt": " ‰", "slenkstis": 2, "slenkstis_pok": 1, "kryptis": 1, "dec": 1, "saltinis": "VDA (S3R0122)"},
 }
 
 
@@ -186,7 +202,7 @@ def main():
         if nezinomi := set(df.k) - zinomi:
             raise SystemExit(f"{pav}: nepavyko susieti su žemėlapiu: {sorted(nezinomi)}")
 
-    # ---- VDA (1–5 sritys) ----
+    # ---- VDA (visos sritys) ----
     def vda(raktas):
         d = pd.read_csv(SAKNIS / "duomenys" / f"vda_{raktas}.csv").dropna(subset=["reiksme"])
         d["k"] = d.administracine_teritorija.map(raktas_vda)
@@ -216,6 +232,23 @@ def main():
     def suma(d):
         """Kelios eilutės tai pačiai teritorijai ir metams (pvz., žuvusieji + sužeistieji) → viena."""
         return d.groupby(["laikotarpis", "administracine_teritorija", "k"], as_index=False).reiksme.sum()
+
+    def gyv_pokytis():
+        """Vidutinio metinio gyventojų skaičiaus pokytis, % (lyginant su ankstesniais metais)."""
+        d = vda("gyventojai").sort_values(["administracine_teritorija", "laikotarpis"])
+        d["reiksme"] = d.groupby("administracine_teritorija").reiksme.pct_change() * 100
+        return vda_serija(d.dropna(subset=["reiksme"]))
+
+    def senatves():
+        """65+ / 15–64 × 100 iš 5 m. amžiaus grupių."""
+        d = vda("amzius")
+        gr = d.amzius_5_m_amziaus_grupes
+        vyr = {"65–69", "70–74", "75–79", "80–84", "85 ir vyresni"}
+        darb = {f"{a}–{a + 4}" for a in range(15, 65, 5)}
+        g = lambda aibe: d[gr.isin(aibe)].groupby(["laikotarpis", "administracine_teritorija", "k"], as_index=False).reiksme.sum()
+        a, b = g(darb), g(vyr)
+        m = a.merge(b, on=["laikotarpis", "administracine_teritorija", "k"])
+        return vda_serija(m.assign(reiksme=m.reiksme_y / m.reiksme_x * 100)[m.reiksme_x > 0])
 
     def santykis(a, b, f):
         """Dviejų VDA eilučių (ta pati teritorija ir metai) junginys, pvz., (pajamos – dotacijos) / pajamos."""
@@ -248,7 +281,10 @@ def main():
                "biudz_gyv": vienam_gyv(vda("biudz_pajamos").assign(reiksme=lambda x: x.reiksme * 1000), 1),
                "nuosavos": santykis(vda("biudz_pajamos"), vda("biudz_dotacijos"), lambda a, b: (a - b) / a * 100),
                "balansas": santykis(vda("biudz_pajamos"), vda("biudz_islaidos"), lambda a, b: (a - b) / a * 100),
-               "admin_dalis": santykis(vda("biudz_islaidos"), vda("biudz_bendros"), lambda a, b: b / a * 100)}
+               "admin_dalis": santykis(vda("biudz_islaidos"), vda("biudz_bendros"), lambda a, b: b / a * 100),
+               "gyv_kaita": gyv_pokytis(), "naturali": vda_serija(vda("naturali")),
+               "senatves": senatves(), "migr_tarpt": vda_serija(vda("migr_tarpt")),
+               "migr_vidaus": vda_serija(vda("migr_vidaus"))}
 
     mat, lt = vbe[vbe.dalykas == "Matematika"], vbe[vbe.dalykas == "Lietuvių kalba ir literatūra"]
     pm, pl = pupp[pupp.dalykas == "Matematika"], pupp[pupp.dalykas == "Lietuvių kalba"]

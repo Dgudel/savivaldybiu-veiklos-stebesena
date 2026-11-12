@@ -50,6 +50,12 @@ LENTELES = {
     "biudz_dotacijos": ("s7r249_m2040204_lt", "s7r249", {"pajamu_rodiklis": "Dotacijos"}),
     "biudz_islaidos": ("s7r248_m2040203_lt", "s7r248", {"valstybes_funkciju_klasifikatorius_cofog": "Iš viso"}),
     "biudz_bendros": ("s7r248_m2040203_lt", "s7r248", {"valstybes_funkciju_klasifikatorius_cofog": "Bendros valstybės paslaugos"}),
+    # ---- 6 sritis: demografija ir migracija ----
+    "naturali": ("s3r695_m3010501_2_lt", "s3r695", {}),      # natūrali gyventojų kaita 1000 gyventojų
+    "migr_tarpt": ("s3r756_m3020118_lt", "s3r756", {}),      # neto tarptautinė migracija 1000 gyventojų
+    "migr_vidaus": ("s3r0122_m3020123_lt", "s3r0122", {}),   # vidaus migracijos saldo 1000 gyventojų
+    "amzius": ("s3r167_m3010203_lt", "s3r167",              # gyventojai metų pradžioje pagal 5 m. amžiaus grupes
+               {"lytis": "Vyrai ir moterys"}, ["amzius_5_m_amziaus_grupes"]),
 }
 
 
@@ -82,11 +88,12 @@ def atsisiusk(lentele: str) -> pd.DataFrame:
 
 
 def main():
-    for raktas, (lentele, matas, filtrai) in LENTELES.items():
+    for raktas, (lentele, matas, filtrai, *papildomi) in LENTELES.items():
         d = atsisiusk(lentele)
         for k, v in filtrai.items():
             d = d[d[k] == v]
-        d = d[["laikotarpis", "administracine_teritorija", matas]].rename(columns={matas: "reiksme"})
+        laikomi = papildomi[0] if papildomi else []          # stulpeliai, kurie paliekami (pvz., amžiaus grupė)
+        d = d[["laikotarpis", "administracine_teritorija", *laikomi, matas]].rename(columns={matas: "reiksme"})
         d.sort_values(["administracine_teritorija", "laikotarpis"]).to_csv(SAKNIS / "duomenys" / f"vda_{raktas}.csv", index=False)
         print(f"  ↓ {lentele} → vda_{raktas}.csv: {len(d)} eil., {d.laikotarpis.min()}–{d.laikotarpis.max()}")
 

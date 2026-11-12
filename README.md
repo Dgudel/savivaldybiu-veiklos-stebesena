@@ -50,6 +50,11 @@ Naujas rodiklis: pridėkite jį į `RODIKLIAI` (`generuoti.py`) su sritimi, kryp
 | 5 | Nuosavų pajamų dalis biudžete | VDA S7R249 | 2004– |
 | 5 | Biudžeto perteklius (deficitas), % pajamų | VDA S7R249, S7R248 | 2004– |
 | 5 | Bendrųjų valstybės paslaugų išlaidų dalis | VDA S7R248 | 2004– |
+| 6 | Gyventojų skaičiaus pokytis, % | VDA S3R166 | 2009– |
+| 6 | Natūrali gyventojų kaita ‰ | VDA S3R695 | 1994– |
+| 6 | Senatvės priklausomybės koeficientas | VDA S3R167 | 1996– |
+| 6 | Tarptautinės migracijos saldo ‰ | VDA S3R756 | 2001– |
+| 6 | Vidaus migracijos saldo ‰ | VDA S3R0122 | 2001– |
 | 2 | VBE išlaikymas ir 86–100 balų (matematika, lietuvių k.) | NŠA | 2013–2024 |
 | 2 | PUPP nepasiekusiųjų dalis ir vidurkis (matematika, lietuvių k.) | NŠA | 2013–2026 |
 
