@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Savivaldybių veiklos stebėsena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+:root {
+  --fonas: #f6f6f4; --pavirsius: #ffffff; --tekstas: #0b0b0b; --tekstas-antr: #52514e; --blankus: #7a7974;
+  --linija: #e6e5e1; --akcentas: #2a78d6;
+  --zalia: #1f9d4c; --geltona: #f0b429; --raudona: #d64541; --nera: #d9d7d1;
+  --zalia-t: #157a39; --geltona-t: #9a6b00; --raudona-t: #b3302c;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --fonas: #121212; --pavirsius: #1c1c1b; --tekstas: #f2f1ee; --tekstas-antr: #c2c0bb; --blankus: #8f8d88;
+  --linija: #2f2e2c; --akcentas: #6aa8f0; --nera: #3a3936;
+  --zalia-t: #4cc77a; --geltona-t: #f0b429; --raudona-t: #ef6b67; } }
+:root[data-theme="dark"] {
+  --fonas: #121212; --pavirsius: #1c1c1b; --tekstas: #f2f1ee; --tekstas-antr: #c2c0bb; --blankus: #8f8d88;
+  --linija: #2f2e2c; --akcentas: #6aa8f0; --nera: #3a3936;
+  --zalia-t: #4cc77a; --geltona-t: #f0b429; --raudona-t: #ef6b67; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fonas); color: var(--tekstas); font: 15px/1.5 Inter, system-ui, -apple-system, sans-serif; }
+.plotis { max-width: 1240px; margin: 0 auto; padding: 0 16px; }
+header.virsus { background: var(--pavirsius); border-bottom: 1px solid var(--linija); }
+header .plotis { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 56px; }
+.logo { font-weight: 700; }
+.zyma { font-size: 12px; color: var(--tekstas-antr); border: 1px solid var(--linija); border-radius: 999px; padding: 2px 10px; }
+h1 { font-size: clamp(24px, 3.2vw, 34px); line-height: 1.15; margin: 28px 0 8px; letter-spacing: -.01em; }
+.ivadas { color: var(--tekstas-antr); max-width: 780px; margin: 0 0 20px; }
+/* Sritys */
+.sritys { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 16px; scrollbar-width: thin; }
+.sritis-btn { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; border: 1px solid var(--linija); background: var(--pavirsius);
+  color: var(--tekstas); border-radius: 999px; padding: 7px 14px; font: inherit; font-size: 14px; cursor: pointer; }
+.sritis-btn .nr { font-size: 12px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--fonas); color: var(--tekstas-antr); font-weight: 600; }
+.sritis-btn[aria-pressed="true"] { border-color: var(--tekstas); box-shadow: inset 0 0 0 1px var(--tekstas); font-weight: 600; }
+.sritis-btn .tuscia { font-size: 11px; color: var(--blankus); }
+/* Valdikliai */
+.valdikliai { display: grid; grid-template-columns: minmax(220px, 1.3fr) minmax(200px, 1fr) minmax(260px, 1.6fr); gap: 12px;
+  background: var(--pavirsius); border: 1px solid var(--linija); border-radius: var(--r); padding: 14px 16px; margin-bottom: 16px; }
+.valdiklis label, .valdiklis .etiketė { display: block; font-size: 12px; color: var(--blankus); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+select { width: 100%; font: inherit; padding: 8px 10px; border: 1px solid var(--linija); border-radius: 8px; background: var(--pavirsius); color: var(--tekstas); }
+.perjungiklis { display: flex; border: 1px solid var(--linija); border-radius: 8px; overflow: hidden; }
+.perjungiklis button { flex: 1; font: inherit; font-size: 13px; padding: 8px 6px; border: 0; background: transparent; color: var(--tekstas-antr); cursor: pointer; }
+.perjungiklis button[aria-pressed="true"] { background: var(--tekstas); color: var(--pavirsius); }
+.laikas { display: flex; align-items: center; gap: 10px; }
+.groti { flex: 0 0 auto; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--linija); background: var(--pavirsius);
+  color: var(--tekstas); cursor: pointer; font-size: 13px; }
+.laikas input[type=range] { flex: 1; accent-color: var(--tekstas); }
+.metai { font-weight: 700; font-size: 20px; min-width: 48px; text-align: right; font-variant-numeric: tabular-nums; }
+.zymes-metu { display: flex; justify-content: space-between; font-size: 11px; color: var(--blankus); margin: 2px 46px 0 46px; }
+/* Santrauka */
+.santrauka { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; margin: 0 0 12px; font-size: 14px; color: var(--tekstas-antr); }
+.santrauka b { color: var(--tekstas); }
+.leg { display: inline-flex; align-items: center; gap: 6px; }
+.leg i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+/* Pagrindinis tinklelis */
+.tinklelis { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.skydas { background: var(--pavirsius); border: 1px solid var(--linija); border-radius: var(--r); padding: 14px 16px; min-width: 0; }
+.skydas h2 { font-size: 16px; margin: 0 0 2px; }
+.skydas .pa { font-size: 13px; color: var(--blankus); margin: 0 0 8px; }
+#zemelapis svg { width: 100%; height: auto; display: block; }
+.sav { stroke: var(--pavirsius); stroke-width: .7; cursor: pointer; transition: opacity .15s; }
+.sav:hover, .sav.aktyvi { stroke: var(--tekstas); stroke-width: 1.6; }
+.blanku .sav:not(.aktyvi) { opacity: .45; }
+.mazas { stroke-dasharray: 2 1.5; }
+#reitingas { max-height: 640px; overflow-y: auto; padding-right: 4px; }
+.eil { display: grid; grid-template-columns: 22px minmax(92px, 132px) 1fr 46px; gap: 6px; align-items: center; font-size: 12.5px;
+  padding: 1px 4px; border-radius: 6px; cursor: pointer; }
+.eil:hover, .eil.aktyvi { background: var(--fonas); }
+.eil.aktyvi { box-shadow: inset 0 0 0 1px var(--tekstas); }
+.eil .vt { color: var(--blankus); text-align: right; font-variant-numeric: tabular-nums; }
+.eil .pv { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.eil .juosta { position: relative; height: 12px; }
+.eil .juosta span { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 0 3px 3px 0; }
+.eil .reik { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }
+.salies-eil { font-weight: 600; background: var(--fonas); }
+.vidurkio-linija { position: absolute; top: -2px; bottom: -2px; width: 0; border-left: 1.5px dashed var(--tekstas-antr); }
+/* Detalės */
+.detales { margin-top: 12px; display: grid; grid-template-columns: 1fr; gap: 6px; }
+.detales h3 { margin: 0; font-size: 18px; }
+.detales .eilute { font-size: 14px; color: var(--tekstas-antr); }
+.busena { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; padding: 2px 10px; border-radius: 999px; border: 1.5px solid currentColor; }
+.b-zalia { color: var(--zalia-t); } .b-geltona { color: var(--geltona-t); } .b-raudona { color: var(--raudona-t); } .b-nera { color: var(--blankus); }
+#tendencija svg { width: 100%; height: 150px; display: block; }
+.uzuomina { color: var(--blankus); font-size: 13px; margin: 6px 0 0; }
+/* Patarimas */
+.patarimas { position: fixed; pointer-events: none; background: var(--tekstas); color: var(--pavirsius); padding: 8px 10px; border-radius: 8px;
+  font-size: 13px; line-height: 1.4; opacity: 0; transition: opacity .1s; z-index: 10; max-width: 240px; }
+/* Rengiama sritis */
+.rengiama { background: var(--pavirsius); border: 1px dashed var(--linija); border-radius: var(--r); padding: 18px 20px; }
+.rengiama h2 { margin: 0 0 4px; font-size: 20px; }
+.rengiama .klaus { color: var(--tekstas-antr); margin: 0 0 14px; }
+.rodikliu-sarasas { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.rodikliu-sarasas li { border: 1px solid var(--linija); border-radius: 8px; padding: 10px 12px; font-size: 14px; }
+.rodikliu-sarasas li small { display: block; color: var(--blankus); font-size: 12px; margin-top: 2px; }
+.metodika { margin: 24px 0 8px; font-size: 14px; color: var(--tekstas-antr); max-width: 900px; }
+.metodika h2 { color: var(--tekstas); font-size: 18px; }
+footer { color: var(--blankus); font-size: 13px; padding: 24px 0 40px; border-top: 1px solid var(--linija); margin-top: 24px; }
+@media (max-width: 900px) {
+  .valdikliai { grid-template-columns: 1fr; }
+  .tinklelis { grid-template-columns: 1fr; }
+  #reitingas { max-height: 460px; }
+}
+</style>
+</head>
+<body>
+<header class="virsus"><div class="plotis">
+  <span class="logo">Savivaldybių veiklos stebėsena</span>
+  <span class="zyma">Prototipas</span>
+</div></header>
+
+<main class="plotis">
+  <h1>Kaip sekasi Lietuvos savivaldybėms?</h1>
+  <p class="ivadas">60 savivaldybių, šešios veiklos sritys. Pasirinkite sritį ir rodiklį, pastumkite metų slankiklį. Spalva rodo, kaip savivaldybei sekasi:
+    <b>žalia</b> – gerai, <b>geltona</b> – vidutiniškai, <b>raudona</b> – blogai. Lyginama su šalies vidurkiu arba su pačios savivaldybės rezultatu prieš metus.</p>
+
+  <nav class="sritys" id="sritys" aria-label="Sritys"></nav>
+  <div id="turinys"></div>
+
+  <section class="metodika">
+    <h2>Kaip nustatoma spalva</h2>
+    <p><b>Lyginant su šalies vidurkiu:</b> žalia, kai savivaldybės reikšmė geresnė už tų metų šalies vidurkį daugiau nei slenkstis; raudona, kai blogesnė daugiau nei slenkstis; kitu atveju geltona.
+      <b>Lyginant su ankstesniais metais:</b> ta pati taisyklė, tik lyginama su pačios savivaldybės reikšme prieš metus (pažangos vertinimas).
+      Slenkstis prototipe: 3 proc. punktai išlaikymo rodikliams, 2 proc. punktai aukštų įvertinimų daliai.</p>
+    <p>Egzaminų rezultatams palyginimas su šalies vidurkiu tinkamesnis: egzamino sunkumas kasmet skiriasi (pvz., 2020 ir 2022 m. matematikos išlaikymas visoje šalyje smuko), todėl palyginus su ankstesniais metais tokiais metais beveik visos savivaldybės nusidažo raudonai.</p>
+    <p>Mažose savivaldybėse (mažiau nei 30 laikiusiųjų) rezultatai labai svyruoja – tokios savivaldybės žemėlapyje pažymėtos punktyriniu kontūru, o reitinge – ženklu ◦.
+      Šalies vidurkis apskaičiuotas iš visų savivaldybių duomenų (laikiusieji iš viso).</p>
+    <p>Duomenų šaltinis: Nacionalinė švietimo agentūra, VBE rezultatai savivaldybėse 2013–2024 m. (iš NŠA PDF lentelių).
+      Savivaldybių ribos: savivaldybių ribų sluoksnis (WGS84), supaprastintas. 2022 ir 2024 m. vienos savivaldybės eilutė PDF neatpažinta – ji rodoma pilka.</p>
+  </section>
+</main>
+<footer><div class="plotis">Prototipas parengtas naudojant DI (Anthropic Claude). Rodiklių reikšmės apskaičiuotos automatiškai iš šaltinio duomenų.</div></footer>
+<div class="patarimas" id="patarimas" role="tooltip"></div>
+
+<script>
+const DUOM = /*DUOMENYS*/null;
+
+const SRITYS = [
+  {nr: 1, pav: "Gyvenimo lygis ir socialinė apsauga", klaus: "Ar gyventojų gerovė savivaldybėje gerėja?",
+   siūlomi: [["Vidutinis neto darbo užmokestis", "VDA / Sodra, ketvirtinis"], ["Socialinės pašalpos gavėjų dalis", "VDA (SPIS), metinis"],
+             ["Laukiančių socialinio būsto šeimų skaičius", "VDA, metinis"], ["Vaikų, gyvenančių nepasiturinčiose šeimose, dalis", "SPIS"]]},
+  {nr: 2, pav: "Viešosios paslaugos", klaus: "Ar gyventojai gauna kokybiškas švietimo, sveikatos ir socialines paslaugas?", aktyvi: true,
+   siūlomi: [["VBE išlaikymas ir aukšti įvertinimai", "NŠA – rodoma prototipe"], ["PUPP: nepasiekusių patenkinamo lygio dalis", "NŠA"],
+             ["Ikimokyklinio ugdymo aprėptis", "VDA / ŠVIS"], ["Tikėtina gyvenimo trukmė", "VDA"], ["Savižudybių lygis", "Higienos institutas"],
+             ["Laukiančių socialinių paslaugų skaičius", "SPIS"]]},
+  {nr: 3, pav: "Ekonomika ir užimtumas", klaus: "Ar savivaldybė kuria darbo vietas ir pritraukia investicijų?",
+   siūlomi: [["Registruotų bedarbių dalis", "Užimtumo tarnyba, mėnesinis"], ["Materialinės investicijos vienam gyventojui", "VDA, metinis"],
+             ["TUI vienam gyventojui", "VDA, metinis"], ["Veikiančių ūkio subjektų skaičius 1000 gyv.", "VDA"], ["Turistų nakvynės", "VDA, mėnesinis"]]},
+  {nr: 4, pav: "Infrastruktūra, aplinka ir saugumas", klaus: "Ar gerėja savivaldybės infrastruktūra, aplinka ir viešoji tvarka?",
+   siūlomi: [["Nusikalstamos veikos 10 tūkst. gyv.", "IRD (filtras „Savivaldybės“), mėnesinis"], ["Žuvusieji ir sužeistieji keliuose", "LAKD / IRD"],
+             ["Komunalinių atliekų rūšiavimas", "AAA"], ["Gyventojai, prijungti prie centralizuotų nuotekų", "VDA"], ["Gaisrai 10 tūkst. gyv.", "PAGD"]]},
+  {nr: 5, pav: "Savivaldos valdymas ir finansai", klaus: "Ar savivaldybė tvarkosi skaidriai ir finansiškai tvariai?",
+   siūlomi: [["Biudžeto pajamos vienam gyventojui", "Finansų ministerija"], ["Skolos ir pajamų santykis", "Finansų ministerija"],
+             ["Investicijų dalis išlaidose", "VSAKIS"], ["Gyventojų pasitikėjimas savivaldybe", "apklausa"], ["Viešųjų pirkimų konkurencingumas", "VPT"]]},
+  {nr: 6, pav: "Demografija ir migracija", klaus: "Ar savivaldybė išlaiko ir pritraukia gyventojų?",
+   siūlomi: [["Gyventojų skaičiaus kaita ‰", "VDA, metinis"], ["Vidaus migracijos saldo", "VDA"], ["Tarptautinės migracijos saldo", "VDA"],
+             ["Senatvės priklausomybės koeficientas", "VDA"], ["Natūrali kaita ‰", "VDA"]]},
+];
+
+const RODIKLIAI = {
+  mat_islaike: {pav: "Matematikos VBE išlaikymas", trumpai: "išlaikė matematikos VBE", vnt: "%", slenkstis: 3, kryptis: 1},
+  lt_islaike:  {pav: "Lietuvių kalbos ir literatūros VBE išlaikymas", trumpai: "išlaikė lietuvių k. VBE", vnt: "%", slenkstis: 3, kryptis: 1},
+  mat_aukst:   {pav: "Matematikos VBE: 86–100 balų", trumpai: "gavo 86–100 balų (matematika)", vnt: "%", slenkstis: 2, kryptis: 1},
+};
+const SPALVOS = {zalia: "var(--zalia)", geltona: "var(--geltona)", raudona: "var(--raudona)", nera: "var(--nera)"};
+const ZODZIAI = {zalia: "Gerai", geltona: "Vidutiniškai", raudona: "Blogai", nera: "Nėra duomenų"};
+const MAZA_IMTIS = 30;
+
+let busena = {sritis: 2, rodiklis: "mat_islaike", budas: "vidurkis", metai: 2024, pasirinkta: null, groja: null};
+try { const h = location.hash.replace("#", ""); if (/^sritis-[1-6]$/.test(h)) busena.sritis = +h.slice(7); } catch (e) {}
+
+const fmt = v => v == null ? "–" : v.toFixed(1).replace(".", ",");
+const fmtPok = v => (v > 0 ? "+" : v < 0 ? "−" : "±") + Math.abs(v).toFixed(1).replace(".", ",");
+const metaiVisi = Object.keys(DUOM.salis.mat_islaike).map(Number).sort((a, b) => a - b);
+const pav = id => DUOM.geo.features.find(f => f.properties.id === id).properties.pav;
+
+function verte(id, metai) {
+  const r = DUOM.duom[busena.rodiklis][id];
+  return r && r[metai] ? {v: r[metai][0], n: r[metai][1]} : null;
+}
+function ivertink(id, metai) {
+  const R = RODIKLIAI[busena.rodiklis], x = verte(id, metai);
+  if (!x) return {k: "nera"};
+  let lyg;
+  if (busena.budas === "vidurkis") lyg = DUOM.salis[busena.rodiklis][metai];
+  else { const p = verte(id, metai - 1); if (!p) return {k: "nera", ...x}; lyg = p.v; }
+  const d = (x.v - lyg) * R.kryptis;
+  return {k: d > R.slenkstis ? "zalia" : d < -R.slenkstis ? "raudona" : "geltona", d: x.v - lyg, lyg, ...x};
+}
+
+/* ---------- Sritys ---------- */
+function piestiSritis() {
+  const nav = d3.select("#sritys");
+  nav.selectAll("button").data(SRITYS).join("button").attr("class", "sritis-btn")
+    .attr("aria-pressed", d => d.nr === busena.sritis)
+    .html(d => `<span class="nr">${d.nr}</span>${d.pav}${d.aktyvi ? "" : ' <span class="tuscia">rengiama</span>'}`)
+    .on("click", (e, d) => { busena.sritis = d.nr; try { history.replaceState(null, "", "#sritis-" + d.nr); } catch (er) {} piestiSritis(); piestiTurini(); });
+}
+
+function piestiTurini() {
+  const s = SRITYS.find(x => x.nr === busena.sritis), t = d3.select("#turinys");
+  stabdyti();
+  t.html("");
+  if (!s.aktyvi) {
+    t.append("div").attr("class", "rengiama").html(`<h2>${s.nr}. ${s.pav}</h2><p class="klaus">${s.klaus}</p>
+      <p class="uzuomina" style="margin:0 0 10px">Šios srities rodikliai prototipe dar neprijungti. Siūlomi rodikliai, kuriuos galima gauti pagal savivaldybes:</p>
+      <ul class="rodikliu-sarasas">${s.siūlomi.map(([a, b]) => `<li>${a}<small>${b}</small></li>`).join("")}</ul>`);
+    return;
+  }
+  t.html(`
+  <div class="valdikliai">
+    <div class="valdiklis"><label for="rodiklis">Rodiklis</label><select id="rodiklis"></select></div>
+    <div class="valdiklis"><span class="etiketė">Lyginti su</span>
+      <div class="perjungiklis" role="group" aria-label="Palyginimo būdas">
+        <button data-b="vidurkis">šalies vidurkiu</button><button data-b="pokytis">ankstesniais metais</button></div></div>
+    <div class="valdiklis"><label for="slankiklis">Metai</label>
+      <div class="laikas"><button class="groti" id="groti" aria-label="Rodyti metus paeiliui">▶</button>
+        <input type="range" id="slankiklis" min="${metaiVisi[0]}" max="${metaiVisi.at(-1)}" step="1" value="${busena.metai}">
+        <span class="metai" id="metai">${busena.metai}</span></div>
+      <div class="zymes-metu"><span>${metaiVisi[0]}</span><span>${metaiVisi.at(-1)}</span></div></div>
+  </div>
+  <p class="santrauka" id="santrauka"></p>
+  <div class="tinklelis">
+    <section class="skydas"><h2 id="zem-pav"></h2><p class="pa" id="zem-pa"></p><div id="zemelapis"></div>
+      <div class="detales" id="detales"></div></section>
+    <section class="skydas"><h2>Savivaldybių reitingas</h2><p class="pa" id="reit-pa"></p><div id="reitingas"></div></section>
+  </div>`);
+  d3.select("#rodiklis").selectAll("option").data(Object.entries(RODIKLIAI)).join("option")
+    .attr("value", d => d[0]).property("selected", d => d[0] === busena.rodiklis).text(d => d[1].pav);
+  d3.select("#rodiklis").on("change", e => { busena.rodiklis = e.target.value; atnaujinti(); });
+  d3.selectAll(".perjungiklis button").on("click", e => { busena.budas = e.currentTarget.dataset.b; atnaujinti(); });
+  d3.select("#slankiklis").on("input", e => { busena.metai = +e.target.value; atnaujinti(); });
+  d3.select("#groti").on("click", groti);
+  piestiZemelapi();
+  atnaujinti();
+}
+
+/* ---------- Žemėlapis ---------- */
+let kelias;
+function piestiZemelapi() {
+  const W = 720, H = 470;
+  const proj = d3.geoMercator().fitExtent([[8, 8], [W - 8, H - 8]], DUOM.geo);
+  kelias = d3.geoPath(proj);
+  const svg = d3.select("#zemelapis").append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role", "img")
+    .attr("aria-label", "Lietuvos savivaldybių žemėlapis");
+  svg.append("g").attr("id", "sav-g").selectAll("path").data(DUOM.geo.features).join("path")
+    .attr("class", "sav").attr("d", kelias)
+    .on("mousemove", (e, d) => rodytiPatarima(e, d.properties.id))
+    .on("mouseleave", slepti)
+    .on("click", (e, d) => pasirinkti(d.properties.id));
+}
+
+function rodytiPatarima(e, id) {
+  const R = RODIKLIAI[busena.rodiklis], v = ivertink(id, busena.metai), p = d3.select("#patarimas");
+  let html = `<b>${pav(id)}</b><br>`;
+  if (v.v == null) html += "Nėra duomenų";
+  else {
+    html += `${fmt(v.v)} % · ${ZODZIAI[v.k]}<br>`;
+    if (v.d != null) html += `${busena.budas === "vidurkis" ? "Nuo šalies vidurkio" : "Per metus"}: ${fmtPok(v.d)} p. p.<br>`;
+    html += `Laikė: ${v.n}${v.n < MAZA_IMTIS ? " (maža imtis)" : ""}`;
+  }
+  p.html(html).style("opacity", 1);
+  const x = Math.min(e.clientX + 14, innerWidth - 250), y = e.clientY + 14;
+  p.style("left", x + "px").style("top", y + "px");
+}
+function slepti() { d3.select("#patarimas").style("opacity", 0); }
+
+/* ---------- Atnaujinimas ---------- */
+function atnaujinti() {
+  const R = RODIKLIAI[busena.rodiklis], m = busena.metai, salis = DUOM.salis[busena.rodiklis][m];
+  d3.select("#metai").text(m);
+  d3.select("#slankiklis").property("value", m);
+  d3.selectAll(".perjungiklis button").attr("aria-pressed", function () { return this.dataset.b === busena.budas; });
+  const ids = DUOM.geo.features.map(f => f.properties.id);
+  const iv = Object.fromEntries(ids.map(id => [id, ivertink(id, m)]));
+
+  d3.selectAll(".sav").attr("fill", d => SPALVOS[iv[d.properties.id].k])
+    .classed("mazas", d => (iv[d.properties.id].n ?? 99) < MAZA_IMTIS)
+    .classed("aktyvi", d => d.properties.id === busena.pasirinkta);
+  d3.select("#zemelapis svg").classed("blanku", !!busena.pasirinkta);
+
+  d3.select("#zem-pav").text(`${R.pav}, ${m} m.`);
+  d3.select("#zem-pa").text(busena.budas === "vidurkis"
+    ? `Spalva – lyginant su šalies vidurkiu (${fmt(salis)} %), slenkstis ±${R.slenkstis} p. p.`
+    : `Spalva – lyginant su savivaldybės rezultatu ${m - 1} m., slenkstis ±${R.slenkstis} p. p.`);
+
+  const cnt = {zalia: 0, geltona: 0, raudona: 0, nera: 0};
+  ids.forEach(id => cnt[iv[id].k]++);
+  d3.select("#santrauka").html(
+    `<span>Šalies vidurkis ${m} m.: <b>${fmt(salis)} %</b>${DUOM.salis[busena.rodiklis][m - 1] != null ? ` (${fmtPok(salis - DUOM.salis[busena.rodiklis][m - 1])} p. p. per metus)` : ""}</span>` +
+    ["zalia", "geltona", "raudona", "nera"].filter(k => cnt[k] || k !== "nera")
+      .map(k => `<span class="leg"><i style="background:${SPALVOS[k]}"></i>${ZODZIAI[k]}: <b>${cnt[k]}</b></span>`).join(""));
+
+  // Reitingas
+  const eil = ids.map(id => ({id, ...iv[id]})).filter(x => x.v != null).sort((a, b) => (b.v - a.v) * R.kryptis);
+  const max = Math.max(100, ...eil.map(x => x.v)), skale = v => v / max * 100;
+  d3.select("#reit-pa").text(`${R.trumpai}, %. Brūkšninė linija – šalies vidurkis. ${eil.length} savivaldybės.`);
+  const cont = d3.select("#reitingas");
+  const rows = cont.selectAll(".eil").data(eil, d => d.id).join(
+    enter => {
+      const r = enter.append("div").attr("class", "eil").attr("tabindex", 0);
+      r.append("span").attr("class", "vt"); r.append("span").attr("class", "pv");
+      const j = r.append("span").attr("class", "juosta"); j.append("span"); j.append("i").attr("class", "vidurkio-linija");
+      r.append("span").attr("class", "reik");
+      r.on("click", (e, d) => pasirinkti(d.id)).on("keydown", (e, d) => { if (e.key === "Enter") pasirinkti(d.id); })
+       .on("mousemove", (e, d) => rodytiPatarima(e, d.id)).on("mouseleave", slepti);
+      return r;
+    });
+  rows.order().classed("aktyvi", d => d.id === busena.pasirinkta);
+  rows.select(".vt").text((d, i) => i + 1);
+  rows.select(".pv").text(d => pav(d.id) + (d.n < MAZA_IMTIS ? " ◦" : "")).attr("title", d => pav(d.id));
+  rows.select(".juosta span").style("background", d => SPALVOS[d.k]).transition().duration(250).style("width", d => skale(d.v) + "%");
+  rows.select(".vidurkio-linija").style("left", skale(salis) + "%");
+  rows.select(".reik").text(d => fmt(d.v));
+
+  piestiDetales();
+}
+
+function pasirinkti(id) {
+  busena.pasirinkta = busena.pasirinkta === id ? null : id;
+  atnaujinti();
+  if (busena.pasirinkta) {
+    const el = document.querySelector("#reitingas .eil.aktyvi");
+    if (el) el.scrollIntoView({block: "nearest", behavior: "smooth"});
+  }
+}
+
+function piestiDetales() {
+  const box = d3.select("#detales").html("");
+  const id = busena.pasirinkta;
+  if (!id) { box.append("p").attr("class", "uzuomina").text("Spustelėkite savivaldybę žemėlapyje arba reitinge – pamatysite jos raidą per visus metus."); return; }
+  const R = RODIKLIAI[busena.rodiklis], v = ivertink(id, busena.metai);
+  const viet = [...d3.selectAll("#reitingas .eil").data()].findIndex(x => x.id === id) + 1;
+  box.append("h3").text(pav(id));
+  box.append("div").attr("class", "eilute").html(v.v == null ? "Nėra duomenų šiais metais." :
+    `<span class="busena b-${v.k}">${ZODZIAI[v.k]}</span> &nbsp;${fmt(v.v)} % · ${viet} vieta iš ${d3.selectAll("#reitingas .eil").size()} · laikė ${v.n}` +
+    (v.d != null ? ` · ${busena.budas === "vidurkis" ? "nuo vidurkio" : "per metus"} ${fmtPok(v.d)} p. p.` : ""));
+  // Tendencija
+  const W = 600, H = 150, m = {l: 34, r: 10, t: 10, b: 22};
+  const sav = metaiVisi.map(y => ({y, v: verte(id, y)?.v})).filter(d => d.v != null);
+  const sal = metaiVisi.map(y => ({y, v: DUOM.salis[busena.rodiklis][y]}));
+  const x = d3.scaleLinear().domain(d3.extent(metaiVisi)).range([m.l, W - m.r]);
+  const lo = d3.min([...sav, ...sal], d => d.v), hi = d3.max([...sav, ...sal], d => d.v);
+  const y = d3.scaleLinear().domain([Math.max(0, lo - 5), Math.min(100, hi + 3)]).nice().range([H - m.b, m.t]);
+  const svg = box.append("div").attr("id", "tendencija").append("svg").attr("viewBox", `0 0 ${W} ${H}`);
+  svg.append("g").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(6).tickFormat(d3.format("d")).tickSizeOuter(0))
+    .call(g => g.selectAll("text").attr("fill", "var(--blankus)")).call(g => g.selectAll("line,path").attr("stroke", "var(--linija)"));
+  svg.append("g").attr("transform", `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickSize(-(W - m.l - m.r)))
+    .call(g => g.select(".domain").remove()).call(g => g.selectAll("line").attr("stroke", "var(--linija)"))
+    .call(g => g.selectAll("text").attr("fill", "var(--blankus)"));
+  const l = d3.line().x(d => x(d.y)).y(d => y(d.v));
+  svg.append("path").datum(sal).attr("fill", "none").attr("stroke", "var(--blankus)").attr("stroke-dasharray", "4 3").attr("stroke-width", 1.5).attr("d", l);
+  svg.append("path").datum(sav).attr("fill", "none").attr("stroke", "var(--akcentas)").attr("stroke-width", 2.2).attr("d", l);
+  svg.append("line").attr("x1", x(busena.metai)).attr("x2", x(busena.metai)).attr("y1", m.t).attr("y2", H - m.b).attr("stroke", "var(--tekstas)").attr("stroke-width", .8).attr("opacity", .4);
+  svg.selectAll("circle").data(sav).join("circle").attr("cx", d => x(d.y)).attr("cy", d => y(d.v)).attr("r", 3.2)
+    .attr("fill", d => SPALVOS[ivertink(id, d.y).k]).attr("stroke", "var(--pavirsius)");
+  box.append("p").attr("class", "uzuomina").html(`<span style="color:var(--akcentas)">━</span> ${pav(id)} &nbsp; <span>┄</span> šalies vidurkis · taškų spalva – to meto įvertinimas`);
+}
+
+/* ---------- Laiko animacija ---------- */
+function groti() {
+  if (busena.groja) return stabdyti();
+  if (busena.metai >= metaiVisi.at(-1)) busena.metai = metaiVisi[0] - 1;
+  d3.select("#groti").text("❚❚").attr("aria-label", "Sustabdyti");
+  const zingsnis = () => {
+    if (busena.metai >= metaiVisi.at(-1)) return stabdyti();
+    busena.metai++; atnaujinti();
+  };
+  zingsnis();
+  busena.groja = setInterval(zingsnis, 1100);
+}
+function stabdyti() {
+  if (busena.groja) clearInterval(busena.groja);
+  busena.groja = null;
+  d3.select("#groti").text("▶").attr("aria-label", "Rodyti metus paeiliui");
+}
+
+piestiSritis();
+piestiTurini();
+</script>
+</body>
+</html>
