@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vertinimo metodika · Savivaldybių veiklos stebėsena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="statika/stilius.css?v=<!--CSS_V-->">
+</head>
+<body>
+<!--VIRSUS-->
+<main class="plotis metodika-psl">
+  <nav class="kelias-nav"><a href="index.html">← Švieslentė</a></nav>
+  <h1>Kaip vertinama: gerai, vidutiniškai ar blogai</h1>
+  <p>Kiekvienos savivaldybės spalva nustatoma automatiškai pagal iš anksto paskelbtą taisyklę, todėl vertinimas nepriklauso nuo to, kas ir kada jį skaičiuoja.</p>
+
+  <h2>Kaip nustatoma spalva</h2>
+  <ol>
+    <li><b>Lyginant su šalies vidurkiu</b> (numatytasis būdas): savivaldybės reikšmė lyginama su tų pačių metų šalies vidurkiu.
+      <span style="color:var(--zalia-t)"><b>Žalia</b></span> – reikšmė geresnė už vidurkį daugiau nei rodikliui nustatytas slenkstis;
+      <span style="color:var(--raudona-t)"><b>raudona</b></span> – blogesnė daugiau nei slenkstis;
+      <span style="color:var(--geltona-t)"><b>geltona</b></span> – kitu atveju. Taip matoma, kurios savivaldybės lenkia kitas.</li>
+    <li><b>Lyginant su ankstesniais metais</b>: ta pati taisyklė, tik lyginama su pačios savivaldybės reikšme ankstesniais metais, už kuriuos yra duomenų. Taip vertinama pažanga.</li>
+    <li><b>Kryptis.</b> Daugumai rodiklių geriau didesnė reikšmė. Rodikliams, kurių mažesnė reikšmė yra geresnė (pvz., nepasiekusiųjų patenkinamo lygio dalis), taisyklė taikoma atvirkščiai, o reitinge geriausios savivaldybės rodomos viršuje.</li>
+    <li><b>Šalies vidurkis</b> apskaičiuojamas iš visų savivaldybių duomenų (pvz., visų laikiusiųjų suma), o ne kaip savivaldybių reikšmių vidurkis, todėl didelės savivaldybės jam turi daugiau įtakos.</li>
+    <li><b>Mažos imtys.</b> Savivaldybėse, kur egzaminą laikė mažiau nei 30 mokinių, rezultatai labai svyruoja. Tokios savivaldybės žemėlapyje pažymėtos punktyriniu kontūru, o reitinge – ženklu ◦.</li>
+    <li><b>Egzaminų sunkumas.</b> Egzaminų užduotys kasmet skiriasi (pvz., 2020 ir 2022 m. matematikos rezultatai visoje šalyje smuko), todėl egzaminų rodikliams tinkamesnis palyginimas su šalies vidurkiu. Lyginant su ankstesniais metais, sunkiais metais beveik visos savivaldybės tampa raudonos.</li>
+  </ol>
+
+  <h2>Rodikliai ir taisyklės</h2>
+  <div class="lentele-slinktis"><table>
+    <thead><tr><th>Sritis</th><th>Rodiklis</th><th>Metai</th><th>Geriau, kai</th><th>Slenkstis</th><th>Šaltinis</th></tr></thead>
+    <tbody><!--RODIKLIU_EILUTES--></tbody>
+  </table></div>
+
+  <h2>Sritys</h2>
+  <p>Sritys atitinka nacionalinės Vyriausybės veiklos stebėsenos švieslentės struktūrą, pritaikytą savivaldybių kompetencijoms: vietoje šalies saugumo ir migracijos kontrolės – savivaldos valdymas ir finansai, o viešoji tvarka priskirta infrastruktūros sričiai.</p>
+  <div class="lentele-slinktis"><table>
+    <thead><tr><th>Sritis</th><th>Klausimas</th><th>Rodikliai</th></tr></thead>
+    <tbody><!--SRICIU_EILUTES--></tbody>
+  </table></div>
+
+  <h2>Duomenų šaltiniai</h2>
+  <ul>
+    <li><b>VBE rezultatai savivaldybėse 2013–2024 m.</b> – Nacionalinė švietimo agentūra (NŠA), PDF lentelės. VBE nuo 2025 m. vyksta nauja struktūra (A ir B lygiai), o NŠA skelbia tik mokyklų vidurkius, todėl savivaldybių išlaikymo duomenų nuo 2025 m. nėra.</li>
+    <li><b>PUPP rezultatai savivaldybėse 2013–2026 m.</b> – NŠA, PDF lentelės. Įtraukti visi patikrinimo variantai (lietuvių, lenkų, rusų ir kt. mokomąja kalba); 2013–2017 m. lietuvių kalba – gimtoji ir valstybinė kartu. 2020 m. PUPP nevyko, todėl 2021 m. lyginami su 2019 m.</li>
+    <li>Kelių savivaldybių eilučių kai kuriais metais PDF atpažinti nepavyko – tais metais jos rodomos pilkai („Nėra duomenų“).</li>
+    <li><b>Savivaldybių ribos</b> – savivaldybių ribų erdvinis sluoksnis (WGS84), supaprastintas žemėlapiui.</li>
+  </ul>
+
+  <section class="metodika-di" id="di" aria-labelledby="di-pav">
+    <h2 id="di-pav">Dirbtinio intelekto naudojimas</h2>
+    <p>Vadovaujantis skaidrumo principu ir ES dirbtinio intelekto akto (Reglamentas (ES) 2024/1689) 50 straipsniu, informuojame, kad kuriant šią švieslentę naudota dirbtinio intelekto sistema – <b>Anthropic Claude Opus 5.5 Medium</b> modelis.</p>
+    <ul>
+      <li><b>Kam naudotas DI:</b> programos kodui (duomenų apdorojimas, žemėlapis, grafikai, svetainės generavimas) parašyti, duomenų rinkiniams parinkti, rodiklių aprašymų ir vertinimo taisyklių tekstams parengti.</li>
+      <li><b>Kam DI nenaudojamas:</b> svetainei veikiant DI nenaudojamas. Rodiklių reikšmės ir spalvos apskaičiuojamos automatiškai iš oficialių šaltinių duomenų pagal šiame puslapyje skelbiamas taisykles.</li>
+      <li><b>Žmogaus priežiūra:</b> rodiklių parinkimą, vertinimo taisykles, slenksčius ir svetainės turinį peržiūrėjo ir už juos atsako švieslentės kūrėjas – Mykolo Romerio universitetas.</li>
+    </ul>
+    <p>Pastebėję klaidą ar netikslumą, praneškite švieslentės kūrėjui – Mykolo Romerio universitetui (kontaktai nurodyti puslapio apačioje).</p>
+  </section>
+</main>
+<!--APACIA-->
+</body>
+</html>

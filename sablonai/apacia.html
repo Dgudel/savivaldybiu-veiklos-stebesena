@@ -1,0 +1,32 @@
+<footer class="apacia">
+  <div class="plotis apacia-tinklelis">
+    <div class="apacia-kurejas">
+      <a href="https://www.mruni.eu/" class="apacia-logo"><img src="statika/mru-logo.png" alt="Mykolo Romerio universitetas" height="48"></a>
+      <p class="apacia-pav">Švieslentės kūrėjas – <b>Mykolo Romerio universitetas</b></p>
+      <address class="apacia-kontaktai">
+        Ateities g. 20, LT-08303 Vilnius<br>
+        Juridinio asmens kodas 111951726<br>
+        Tel. <a href="tel:+37061027509">+370 610 27509</a>
+      </address>
+      <p>© <!--METAI--> Mykolo Romerio universitetas. Visos teisės saugomos.
+         Statistiniai duomenys priklauso jų teikėjams ir naudojami pagal jų pakartotinio naudojimo sąlygas.</p>
+    </div>
+    <div>
+      <p>Duomenų šaltiniai: Nacionalinė švietimo agentūra (VBE ir PUPP rezultatai savivaldybėse), savivaldybių ribų erdviniai duomenys.
+         Puslapis atnaujintas <!--ATNAUJINTA-->.
+         <a href="metodika.html">Vertinimo metodika</a>.
+         Taip pat žr. <a href="https://dgudel.github.io/vyriausybes-veiklos-stebesena/">Vyriausybės veiklos stebėsenos švieslentę</a>.</p>
+      <p class="apacia-di"><span class="di-zyma" aria-hidden="true">DI</span>
+         Kuriant švieslentę naudotas dirbtinis intelektas (Anthropic Claude Opus 5.5 Medium modelis).
+         Rodiklių reikšmės ir vertinimai apskaičiuojami automatiškai pagal skelbiamas taisykles, be DI.
+         <a href="metodika.html#di">Plačiau apie DI naudojimą</a>.</p>
+    </div>
+  </div>
+</footer>
+<script>
+  // Uždaryti meniu paspaudus nuorodą arba už jo ribų
+  document.addEventListener("click", function (e) {
+    var m = document.querySelector(".meniu-sritys");
+    if (m && m.open && (!m.contains(e.target) || e.target.closest(".meniu-skydas a"))) m.open = false;
+  });
+</script>
