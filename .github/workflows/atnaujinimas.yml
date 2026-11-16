@@ -1,0 +1,76 @@
+# Kasdien atnaujina savivaldybių švieslentės duomenis ir paskelbia svetainę GitHub Pages.
+#  1) atsisiunčia naujausius VDA duomenis iš Lietuvos duomenų portalo (irankiai/vda_atnaujinti.py);
+#  2) sugeneruoja index.html ir metodika.html (generuoti.py);
+#  3) jei duomenys pasikeitė – įrašo juos į repozitoriją (commit „Duomenų atnaujinimas …“);
+#  4) paskelbia svetainę.
+# Paleidžiama: kasdien 4:47 UTC (6:47–7:47 Lietuvos laiku), įkėlus pakeitimus į main ir rankiniu būdu (Actions → Run workflow).
+# Svarbu: Settings → Pages → Build and deployment → Source turi būti „GitHub Actions“.
+name: Duomenų atnaujinimas ir paskelbimas
+
+on:
+  schedule:
+    - cron: "47 4 * * *"
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write      # įrašyti atnaujintus duomenis
+  pages: write
+  id-token: write
+
+concurrency:
+  group: atnaujinimas
+  cancel-in-progress: false
+
+jobs:
+  atnaujinti:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+
+      - name: Atsisiųsti naujausius duomenis
+        # Jei duomenų portalas nepasiekiamas, paliekami ankstesni duomenys ir svetainė vis tiek paskelbiama.
+        continue-on-error: true
+        run: python irankiai/vda_atnaujinti.py
+
+      - name: Sugeneruoti svetainę
+        run: python generuoti.py
+
+      - name: Įrašyti pasikeitusius duomenis į repozitoriją
+        run: |
+          if git diff --quiet -- duomenys; then
+            echo "Duomenys nepasikeitė – nieko neįrašoma."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add duomenys index.html metodika.html
+          git commit -m "Duomenų atnaujinimas $(date -u +%Y-%m-%d)"
+          git pull --rebase --autostash origin main
+          git push
+
+      - name: Paruošti svetainės failus
+        run: |
+          mkdir -p _site
+          cp -r index.html metodika.html statika _site/
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  paskelbti:
+    needs: atnaujinti
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

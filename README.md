@@ -7,10 +7,29 @@ Svetainė: https://dgudel.github.io/savivaldybiu-veiklos-stebesena/
 ## Paleidimas
 
 ```
-pip install pandas
-python3 generuoti.py      # sukuria index.html ir metodika.html
+pip install -r requirements.txt
+python3 irankiai/vda_atnaujinti.py   # (nebūtina) atsisiunčia naujausius VDA duomenis, ~4 min.
+python3 generuoti.py                 # sukuria index.html ir metodika.html
 open index.html
 ```
+
+## Automatinis atnaujinimas
+
+`.github/workflows/atnaujinimas.yml` kasdien 4:47 UTC (taip pat įkėlus pakeitimus į `main` ir rankiniu būdu
+Actions → *Duomenų atnaujinimas ir paskelbimas* → *Run workflow*):
+
+1. atsisiunčia naujausius VDA duomenis iš Lietuvos duomenų portalo API (`irankiai/vda_atnaujinti.py`);
+2. sugeneruoja svetainę (`generuoti.py`);
+3. jei duomenys pasikeitė – įrašo `duomenys/`, `index.html`, `metodika.html` į repozitoriją
+   (commit „Duomenų atnaujinimas YYYY-MM-DD“, autorius github-actions[bot]);
+4. paskelbia svetainę GitHub Pages (Settings → Pages → Source: **GitHub Actions**).
+
+Jei lentelės nepavyksta atsisiųsti arba nauji duomenys atrodo įtartinai (mažiau eilučių, ankstesni metai,
+po filtravimo neliko reikšmių), paliekamas ankstesnis failas, o Actions žurnale rodomas įspėjimas.
+VBE ir PUPP duomenys (NŠA) automatiškai neatnaujinami – NŠA juos skelbia kartą per metus `.xlsx` failais,
+todėl atnaujinami rankiniu būdu (žr. žemiau).
+
+Kadangi robotas įrašo pakeitimus į `main`, prieš savo pakeitimus visada atlikite `git pull --rebase`.
 
 ## Struktūra
 

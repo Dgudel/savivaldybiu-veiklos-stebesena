@@ -1,10 +1,16 @@
 """Valstybės duomenų agentūros (VDA) savivaldybių rodiklių atsisiuntimas iš Lietuvos duomenų portalo API.
 
-Paleidimas:  python3 irankiai/vda_atnaujinti.py      (reikia: pip install pandas requests)
+Paleidimas:  python3 irankiai/vda_atnaujinti.py      (reikia: pip install -r requirements.txt)
 Rezultatas:  duomenys/vda_<raktas>.csv – tik reikalingi pjūviai (laikotarpis, administracine_teritorija, reiksme)
+
+Kasdien paleidžiamas GitHub Actions (.github/workflows/atnaujinimas.yml). Jei kurios nors lentelės nepavyksta
+atsisiųsti arba nauji duomenys atrodo įtartinai (mažiau eilučių ar ankstesni metai nei turimuose), paliekamas
+ankstesnis failas ir išvedamas įspėjimas – svetainė vis tiek sugeneruojama iš turimų duomenų.
 
 Lentelių pavadinimai – duomenų portale (data.gov.lt): rinkinio puslapis → Eksportuoti → API endpoint.
 """
+import sys
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -68,7 +74,18 @@ def atsisiusk(lentele: str) -> pd.DataFrame:
     if lentele in _KESAS:                                    # ta pati lentelė su skirtingais filtrais siunčiama vieną kartą
         return _KESAS[lentele]
     url = f"{API}/{lentele}/query"
-    q = lambda **k: requests.post(url, json=k, timeout=300).json()
+
+    def q(**k):
+        for bandymas in range(4):                            # laikini tinklo / serverio sutrikimai – kartojama
+            try:
+                r = requests.post(url, json=k, timeout=300)
+                r.raise_for_status()
+                return r.json()
+            except (requests.RequestException, ValueError):
+                if bandymas == 3:
+                    raise
+                time.sleep(10 * (bandymas + 1))
+
     n = q(limit=1, offset=0)["total"]
     dydis = min(n, 100_000)
     eil: dict = {}
@@ -87,16 +104,38 @@ def atsisiusk(lentele: str) -> pd.DataFrame:
     return d
 
 
-def main():
+def ispek(tekstas: str) -> None:
+    print(f"::warning::{tekstas}")                          # GitHub Actions rodo kaip įspėjimą; vietoje – tiesiog tekstas
+
+
+def main() -> int:
+    nepavyko = []
     for raktas, (lentele, matas, filtrai, *papildomi) in LENTELES.items():
-        d = atsisiusk(lentele)
-        for k, v in filtrai.items():
-            d = d[d[k] == v]
-        laikomi = papildomi[0] if papildomi else []          # stulpeliai, kurie paliekami (pvz., amžiaus grupė)
-        d = d[["laikotarpis", "administracine_teritorija", *laikomi, matas]].rename(columns={matas: "reiksme"})
-        d.sort_values(["administracine_teritorija", "laikotarpis"]).to_csv(SAKNIS / "duomenys" / f"vda_{raktas}.csv", index=False)
-        print(f"  ↓ {lentele} → vda_{raktas}.csv: {len(d)} eil., {d.laikotarpis.min()}–{d.laikotarpis.max()}")
+        failas = SAKNIS / "duomenys" / f"vda_{raktas}.csv"
+        try:
+            d = atsisiusk(lentele)
+            for k, v in filtrai.items():
+                d = d[d[k] == v]
+            laikomi = papildomi[0] if papildomi else []      # stulpeliai, kurie paliekami (pvz., amžiaus grupė)
+            d = d[["laikotarpis", "administracine_teritorija", *laikomi, matas]].rename(columns={matas: "reiksme"})
+            d = d.sort_values(["administracine_teritorija", "laikotarpis", *laikomi], kind="stable")
+            if d.empty or d.reiksme.notna().sum() == 0:
+                raise ValueError("po filtravimo neliko reikšmių (gal pasikeitė kategorijų pavadinimai?)")
+            if failas.exists():                              # apsauga nuo nepilnų ar sugadintų duomenų
+                senas = pd.read_csv(failas)
+                if len(d) < 0.9 * len(senas):
+                    raise ValueError(f"eilučių sumažėjo: {len(senas)} → {len(d)}")
+                if str(d.laikotarpis.max()) < str(senas.laikotarpis.max()):
+                    raise ValueError(f"naujausias laikotarpis ankstesnis: {senas.laikotarpis.max()} → {d.laikotarpis.max()}")
+            d.to_csv(failas, index=False)
+            print(f"  ↓ {lentele} → {failas.name}: {len(d)} eil., {d.laikotarpis.min()}–{d.laikotarpis.max()}")
+        except Exception as e:                               # noqa: BLE001 – viena lentelė nesustabdo kitų
+            nepavyko.append(raktas)
+            ispek(f"{raktas} ({lentele}): {e} – paliekamas ankstesnis failas")
+    if nepavyko:
+        print(f"Nepavyko atnaujinti: {', '.join(nepavyko)}")
+    return 1 if len(nepavyko) == len(LENTELES) else 0        # klaida tik tada, kai nepavyko nė vienos
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
