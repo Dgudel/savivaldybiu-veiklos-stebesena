@@ -96,6 +96,8 @@ select { width: 100%; font: inherit; padding: 8px 10px; border: 1px solid var(--
 /* ---------- Viršutinis meniu (kaip nacionalinėje švieslentėje) ---------- */
 .virsus { background: var(--pavirsius); border-bottom: 1px solid var(--linija); position: sticky; top: 0; z-index: 20; }
 .virsus .plotis { display: flex; align-items: center; gap: 12px; height: 56px; }
+.virsus-mru { display: flex; align-items: center; flex-shrink: 0; }
+.virsus-mru img { height: 30px; width: auto; display: block; }
 .logo { font-weight: 700; color: var(--tekstas); text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .meniu { margin-left: auto; display: flex; align-items: center; gap: 4px; }
 .meniu-nuoroda, .meniu-sritys > summary { font-size: 14.5px; font-weight: 600; color: var(--tekstas-antr); text-decoration: none;
@@ -125,7 +127,7 @@ select { width: 100%; font: inherit; padding: 8px 10px; border: 1px solid var(--
 .apacia-tinklelis { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 32px; }
 .apacia-pav { font-size: 15px; color: var(--tekstas); }
 .apacia-logo { display: inline-block; margin-bottom: 10px; }
-.apacia-logo img { height: 48px; width: auto; display: block; }
+.apacia-logo img { height: 64px; width: auto; display: block; }
 .apacia-kontaktai { font-style: normal; margin: 0 0 10px; line-height: 1.55; }
 .di-zyma { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .04em; color: var(--tekstas-antr);
   border: 1px solid var(--linija); border-radius: 4px; padding: 0 5px; margin-right: 6px; vertical-align: 1px; }
