@@ -9,6 +9,55 @@
 <link rel="stylesheet" href="statika/stilius.css?v=<!--CSS_V-->">
 <!-- Lankomumo statistika be slapukų (GoatCounter) – asmens duomenys nerenkami -->
 <script data-goatcounter="https://dgudel.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<!-- Google Analytics: įkeliama tik lankytojui sutikus (sutikimas saugomas naršyklėje) -->
+<script>
+(function () {
+  var ID = "G-QV9JF9VGPX", GRUPE = "Savivaldybių švieslentė", RAKTAS = "ga_sutikimas";
+  var en = (document.documentElement.lang || "").slice(0, 2) === "en";
+  function gauk() { try { return localStorage.getItem(RAKTAS); } catch (e) { return null; } }
+  function irasyk(v) { try { localStorage.setItem(RAKTAS, v); } catch (e) {} }
+  function ijunk() {
+    if (window.__gaIjungta) return; window.__gaIjungta = true;
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { dataLayer.push(arguments); };
+    gtag("js", new Date());
+    gtag("config", ID, { content_group: GRUPE, allow_google_signals: false, allow_ad_personalization_signals: false });
+    var s = document.createElement("script"); s.async = true;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=" + ID; document.head.appendChild(s);
+  }
+  function juosta() {
+    if (document.getElementById("ga-juosta")) return;
+    var d = document.createElement("div"); d.id = "ga-juosta"; d.setAttribute("role", "dialog");
+    d.setAttribute("aria-label", en ? "Analytics consent" : "Sutikimas dėl statistikos");
+    d.style.cssText = "position:fixed;left:16px;right:16px;bottom:16px;z-index:9999;max-width:640px;margin:0 auto;" +
+      "background:#fff;color:#0b0b0b;border:1px solid #d9d8d4;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.15);" +
+      "padding:14px 16px;font:14px/1.45 system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;";
+    d.innerHTML = (en
+      ? "We would like to use Google Analytics (cookies) to understand how this dashboard is used. Statistics are collected only with your consent."
+      : "Norėtume naudoti „Google Analytics“ (slapukus), kad sužinotume, kaip naudojama švieslentė. Statistika renkama tik jums sutikus.") +
+      '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">' +
+      '<button type="button" data-v="taip" style="padding:7px 14px;border-radius:6px;border:0;background:#2a78d6;color:#fff;cursor:pointer;font:inherit">' +
+      (en ? "Accept" : "Sutinku") + '</button>' +
+      '<button type="button" data-v="ne" style="padding:7px 14px;border-radius:6px;border:1px solid #bdbcb7;background:#fff;color:#0b0b0b;cursor:pointer;font:inherit">' +
+      (en ? "Decline" : "Nesutinku") + '</button></div>';
+    d.addEventListener("click", function (e) {
+      var v = e.target.getAttribute && e.target.getAttribute("data-v"); if (!v) return;
+      irasyk(v); d.remove(); if (v === "taip") ijunk();
+    });
+    document.body.appendChild(d);
+  }
+  function nuoroda() {   // „Statistikos nustatymai“ apačioje – galima pakeisti sprendimą
+    var f = document.querySelector("footer"); if (!f || document.getElementById("ga-nustatymai")) return;
+    var p = document.createElement("p"); p.style.cssText = "max-width:1200px;margin:8px auto 0;padding:0 16px;font-size:13px";
+    var a = document.createElement("a"); a.id = "ga-nustatymai"; a.href = "#";
+    a.textContent = en ? "Analytics settings" : "Statistikos (slapukų) nustatymai";
+    a.addEventListener("click", function (e) { e.preventDefault(); juosta(); });
+    p.appendChild(a); f.appendChild(p);
+  }
+  if (gauk() === "taip") ijunk();
+  document.addEventListener("DOMContentLoaded", function () { nuoroda(); if (!gauk()) juosta(); });
+})();
+</script>
 </head>
 <body>
 <!--VIRSUS-->
